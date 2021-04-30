@@ -1,12 +1,12 @@
-import { FC, Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas, ReactThreeFiber, useFrame, useLoader } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
-import { Html, OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import { TextureLoader, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { CanvasTexture, Group, Mesh, TextureLoader, Sprite, SpriteMaterial, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
 import { useVector3Store } from './stores';
-import ThumbsUp from './icons-react/ThumbsUp'
-import THREE from 'three'
+// import ThumbsUp from './icons-react/ThumbsUp'
+import SvgEye from './icons/Eye'
 
 //import ThumbsUpSvg from './icons/thumbs-up.svg';
 //const ThumbsUpSvg = require('./icons/thumbs-up.svg');
@@ -17,7 +17,7 @@ interface OBJProps {
   mtlUrl?: string;
 }
 
-type MeshProps = ReactThreeFiber.Object3DNode<THREE.Mesh, typeof THREE.Mesh>
+type MeshProps = ReactThreeFiber.Object3DNode<Mesh, typeof Mesh>
 
 
 
@@ -40,9 +40,9 @@ function OBJ(props: MeshProps & OBJProps) {
   const [hotspotVec, setHotspotVec] = useState<Vector3>(new Vector3());
 
 
-  const group = useRef<THREE.Group>(null!);
-  const mesh = useRef<THREE.Mesh>(obj.children[0]! as THREE.Mesh);
-  const { geometry } = obj.children[0] as THREE.Mesh;
+  const group = useRef<Group>(null!);
+  const mesh = useRef<Mesh>(obj.children[0]! as Mesh);
+  const { geometry } = obj.children[0] as Mesh;
 
   const vec = useVector3Store(state => state.vec);
   const initialized = useVector3Store(state => state.initialized);
@@ -109,8 +109,8 @@ function OBJ(props: MeshProps & OBJProps) {
 function Hotspot(props: MeshProps) {
   const [hovered, setHovered] = useState(false)
 
-  const spriteFront = useRef<THREE.Sprite>(null!);
-  const spriteBack = useRef<THREE.Sprite>(null!);
+  const spriteFront = useRef<Sprite>(null!);
+  const spriteBack = useRef<Sprite>(null!);
 
   useEffect(() => {
       document.body.style.cursor = hovered ? 'pointer' : 'auto'
@@ -146,14 +146,14 @@ function Hotspot(props: MeshProps) {
 
 function Box(props: MeshProps) {
   // This reference will give us direct access to the mesh
-  const group = useRef<THREE.Group>(null!);
-  const mesh = useRef<THREE.Mesh>(null!);
+  const group = useRef<Group>(null!);
+  const mesh = useRef<Mesh>(null!);
   // Set up state for the hovered and active state
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
   const [position] = useState<Vector3>(new Vector3().fromArray(props.position as number[]));
 
-  // Rotate mesh every frame, this is outside of React without overhead
+  // Rotate mesh every frame, SpriteMaterial, this is outside of React without overhead
   useFrame(() => {
     // mesh.current.rotation.x = mesh.current.rotation.y += 0.0005
     group.current.rotation.x = group.current.rotation.y += 0.0005
@@ -185,15 +185,26 @@ function Camera() {
   )
 }
 
-function drawIcon({path, viewport} : { path: Path2D, viewport: Vector4 }, fillStyle: string, size: Vector2) {
+function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fillStyle: string, size: Vector2) {
   const canvas = document.createElement('canvas');
-  const { width, height} = size;
+
+  const STROKE_SIZE = 5;
+
+
+  const { width, height } = size;
+  const widthA = width - (STROKE_SIZE * 2);
+  const heightA = height - (STROKE_SIZE * 2);
+
+  console.log(viewport);
+  console.log(width, height);
+
   const minSize = Math.min(width, height);
   canvas.width = parseInt(`${width}`);
   canvas.height = parseInt(`${height}`);
   const iconRatio = viewport.width / viewport.height;
   const canvasRatio = width / height;
-  const scale = canvasRatio > iconRatio ? height / viewport.height : width / viewport.width;
+  const scale = canvasRatio > iconRatio ? heightA / viewport.height : widthA / viewport.width;
+  // const scale = canvasRatio > iconRatio ? height / viewport.height : width / viewport.width;
 
   const context = canvas.getContext('2d')!;
   context.save();
@@ -202,17 +213,31 @@ function drawIcon({path, viewport} : { path: Path2D, viewport: Vector4 }, fillSt
   context.fill();
   context.beginPath();
   context.fillStyle = fillStyle;
-  context.arc(minSize / 2, minSize / 2, minSize / 2, 0, 2 * Math.PI);
-  context.fillStyle = 'black';
+
+  context.shadowBlur = STROKE_SIZE;
+  context.shadowColor = 'black';
+
+  context.arc((minSize / 2) + STROKE_SIZE, (minSize / 2) + STROKE_SIZE, (minSize / 2) - (STROKE_SIZE * 2), 0, 2 * Math.PI);
+  // context.arc(minSize / 2, minSize / 2, minSize / 2, 0, 2 * Math.PI);
+  context.fillStyle = 'white';
   context.fill();
-  context.translate(width / 2, height / 2);
-  context.scale(scale, scale);
+
+  context.shadowBlur = 0;
+
+  // context.strokeStyle = "#cdcdcd"
+  // context.lineWidth = 5;
+  // context.stroke();
+
+  // context.translate(width / 2, height / 2);
+  context.translate((width / 2) + STROKE_SIZE, (height / 2) + STROKE_SIZE);
+  // context.scale(scale, scale);
+  context.scale(scale * .85, scale * .85);
   context.translate(-viewport.x - viewport.width / 2, - viewport.y - viewport.height / 2);
 
-  for(let x = 0; x < 1; x++) {
+  for(let x = 0; x < paths.length; x++) {
     context.beginPath();
-    context.fillStyle = 'red';
-    context.fill(new Path2D(path));
+    context.fillStyle = 'black';
+    context.fill(new Path2D(paths[x]));
   }
 
   context.restore();
@@ -220,31 +245,66 @@ function drawIcon({path, viewport} : { path: Path2D, viewport: Vector4 }, fillSt
   return canvas;
 }
 
-interface SvgTestProps {
-  svg?: React.ReactNode;
-}
 
-const SvgTest: React.FC<SvgTestProps> = (props) => {
-  const { svg } = props;
+function Hotspot2(props: MeshProps & any) {
+  const [hovered, setHovered] = useState(false)
 
-  console.log(svg);
+  const spriteFront = useRef<Sprite>(null!);
+  const spriteBack = useRef<Sprite>(null!);
+
+  useEffect(() => {
+      document.body.style.cursor = hovered ? 'pointer' : 'auto'
+  }, [hovered])
+
+
+  // const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
+  // map.encoding = sRGBEncoding
+
+  const paths: Path2D[] = props.svg.paths.map((path: string) => new Path2D(path));
+  const viewport = new Vector4(...props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
+  const map = new CanvasTexture(drawIcon({paths, viewport}, 'rgba(255, 255, 255, 0.8)', new Vector2(128, 128)));
 
   return (
     <>
-      {svg}
+      <sprite
+        ref={spriteFront}
+        position={props.position}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+      >
+        <spriteMaterial attach="material" map={map} />
+      </sprite>
+
+      <sprite
+        ref={spriteBack}
+        position={props.position}
+      >
+        <spriteMaterial attach="material" map={map} opacity={0.3} transparent={true} depthTest={false} />
+      </sprite>
     </>
-  );
-};
-
-const SvgTest2 = (props: any) => {
-  console.log(props);
-
-  return (
-    <>
-    </>
-  );
-
+  )
 }
+
+// const SvgTest2 = (props: any) => {
+//   // console.log(props);
+//   const paths: Path2D[] = props.svg.paths.map((path: string) => new Path2D(path));
+//   const viewport = new Vector4(props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
+
+//   const map = new CanvasTexture(drawIcon({paths, viewport}, 'rgba(255, 255, 255, 0.8)', new Vector2(128, 128)));
+//   const material = new SpriteMaterial({map});
+
+//   // Get larger or smaller depending on how far we are.
+//   material.sizeAttenuation = true;
+
+//   const sprite = new Sprite(material);
+
+//   // console.log(iconPaths, viewBox);
+
+//   return (
+//     <>
+//     </>
+//   );
+// }
 
 export default function App() {
   return (
@@ -255,13 +315,13 @@ export default function App() {
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
 
-      {/* <SvgTest svg={<ThumbsUpSvg />} /> */}
-      <SvgTest2 svg={ThumbsUpSvg} />
 
       <Suspense fallback={null}>
         <Box position={[-1.2, 0, 0]} />
         <Box position={[1.2, 0, 0]} />
-        <Hotspot position={[0, 0, 0]}></Hotspot>
+        <Hotspot2 position={[0,0,0]} svg={SvgEye} />
+
+        {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
