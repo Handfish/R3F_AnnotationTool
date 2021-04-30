@@ -29,15 +29,19 @@ function template({ template }, opts, { imports, componentName, props, jsx, expo
 
     paths = paths.map((path) => `'${path}'`).join(', \n');
     
-    console.log(paths);
+    // console.log(paths);
+    console.log(imports, opts, componentName, exports);
+
 
     return jsxTemplate.ast`
-      export default {
+      const ${componentName} = {
         viewBox: '${viewBox}',
         paths: [
           ${paths}
         ]
-      }
+      };
+
+      export default ${componentName}
     `
 }
 
