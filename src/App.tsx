@@ -1,11 +1,16 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { FC, Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas, ReactThreeFiber, useFrame, useLoader } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { Html, OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { TextureLoader, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
 import { useVector3Store } from './stores';
+import ThumbsUp from './icons-react/ThumbsUp'
 import THREE from 'three'
+
+//import ThumbsUpSvg from './icons/thumbs-up.svg';
+//const ThumbsUpSvg = require('./icons/thumbs-up.svg');
+
 
 interface OBJProps {
   objUrl: string;
@@ -42,8 +47,11 @@ function OBJ(props: MeshProps & OBJProps) {
   const vec = useVector3Store(state => state.vec);
   const initialized = useVector3Store(state => state.initialized);
 
-
   /*
+   * TODO - The loading of the first model should be done elsewhere
+   * The store should be set before this component is loaded
+   *  - This allows us to get rid of the wonky if/else translate
+   *
    * Translate Buffer Geometry to Origin
    */
   useEffect(() => {
@@ -109,7 +117,9 @@ function Hotspot(props: MeshProps) {
   }, [hovered])
 
 
-  //TODO UseLoader
+  // const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
+  // map.encoding = sRGBEncoding
+
   const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
   map.encoding = sRGBEncoding
 
@@ -184,10 +194,10 @@ function drawIcon({path, viewport} : { path: Path2D, viewport: Vector4 }, fillSt
   const iconRatio = viewport.width / viewport.height;
   const canvasRatio = width / height;
   const scale = canvasRatio > iconRatio ? height / viewport.height : width / viewport.width;
-  const context = canvas.getContext('2d')!;
 
-  // draw white background
+  const context = canvas.getContext('2d')!;
   context.save();
+
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fill();
   context.beginPath();
@@ -198,12 +208,42 @@ function drawIcon({path, viewport} : { path: Path2D, viewport: Vector4 }, fillSt
   context.translate(width / 2, height / 2);
   context.scale(scale, scale);
   context.translate(-viewport.x - viewport.width / 2, - viewport.y - viewport.height / 2);
-  context.beginPath();
-  context.fillStyle = 'red';
-  context.fill(new Path2D(path));
+
+  for(let x = 0; x < 1; x++) {
+    context.beginPath();
+    context.fillStyle = 'red';
+    context.fill(new Path2D(path));
+  }
+
   context.restore();
 
   return canvas;
+}
+
+interface SvgTestProps {
+  svg?: React.ReactNode;
+}
+
+const SvgTest: React.FC<SvgTestProps> = (props) => {
+  const { svg } = props;
+
+  console.log(svg);
+
+  return (
+    <>
+      {svg}
+    </>
+  );
+};
+
+const SvgTest2 = (props: any) => {
+  console.log(props);
+
+  return (
+    <>
+    </>
+  );
+
 }
 
 export default function App() {
@@ -214,6 +254,9 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
+
+      {/* <SvgTest svg={<ThumbsUpSvg />} /> */}
+      <SvgTest2 svg={ThumbsUpSvg} />
 
       <Suspense fallback={null}>
         <Box position={[-1.2, 0, 0]} />
