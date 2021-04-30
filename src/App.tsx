@@ -172,6 +172,7 @@ function Box(props: MeshProps) {
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
       <Hotspot position={[position.x + 0.5, position.y + 0.5, position.z + 0.5]}></Hotspot>
+      <Hotspot2 position={[position.x - 0.5, position.y - 0.5, position.z - 0.5]} svg={SvgEye} />
     </group>
   )
 }
@@ -188,19 +189,16 @@ function Camera() {
 function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fillStyle: string, size: Vector2) {
   const canvas = document.createElement('canvas');
 
-  const STROKE_SIZE = 5;
-
+  const STROKE_SIZE = 3;
 
   const { width, height } = size;
   const widthA = width - (STROKE_SIZE * 2);
   const heightA = height - (STROKE_SIZE * 2);
-
-  console.log(viewport);
-  console.log(width, height);
-
   const minSize = Math.min(width, height);
+
   canvas.width = parseInt(`${width}`);
   canvas.height = parseInt(`${height}`);
+
   const iconRatio = viewport.width / viewport.height;
   const canvasRatio = width / height;
   const scale = canvasRatio > iconRatio ? heightA / viewport.height : widthA / viewport.width;
@@ -217,6 +215,10 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fi
   context.shadowBlur = STROKE_SIZE;
   context.shadowColor = 'black';
 
+  // context.strokeStyle = "black"
+  // context.lineWidth = 2;
+  // context.stroke();
+
   context.arc((minSize / 2) + STROKE_SIZE, (minSize / 2) + STROKE_SIZE, (minSize / 2) - (STROKE_SIZE * 2), 0, 2 * Math.PI);
   // context.arc(minSize / 2, minSize / 2, minSize / 2, 0, 2 * Math.PI);
   context.fillStyle = 'white';
@@ -224,14 +226,12 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fi
 
   context.shadowBlur = 0;
 
-  // context.strokeStyle = "#cdcdcd"
-  // context.lineWidth = 5;
-  // context.stroke();
-
   // context.translate(width / 2, height / 2);
   context.translate((width / 2) + STROKE_SIZE, (height / 2) + STROKE_SIZE);
+
   // context.scale(scale, scale);
   context.scale(scale * .85, scale * .85);
+
   context.translate(-viewport.x - viewport.width / 2, - viewport.y - viewport.height / 2);
 
   for(let x = 0; x < paths.length; x++) {
@@ -319,7 +319,6 @@ export default function App() {
       <Suspense fallback={null}>
         <Box position={[-1.2, 0, 0]} />
         <Box position={[1.2, 0, 0]} />
-        <Hotspot2 position={[0,0,0]} svg={SvgEye} />
 
         {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
