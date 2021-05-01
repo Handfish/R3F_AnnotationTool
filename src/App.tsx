@@ -7,6 +7,9 @@ import { CanvasTexture, Group, Mesh, TextureLoader, Sprite, SpriteMaterial, sRGB
 import { useVector3Store } from './stores';
 // import ThumbsUp from './icons-react/ThumbsUp'
 import SvgEye from './icons/Eye'
+import SvgHandPaper from './icons/HandPaper'
+import SvgLightbulb from './icons/Lightbulb'
+import SvgQuestionCircle from './icons/QuestionCircle'
 
 //import ThumbsUpSvg from './icons/thumbs-up.svg';
 //const ThumbsUpSvg = require('./icons/thumbs-up.svg');
@@ -151,18 +154,22 @@ function Box(props: MeshProps) {
   // Set up state for the hovered and active state
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
-  const [position] = useState<Vector3>(new Vector3().fromArray(props.position as number[]));
+  const [positionArr] = useState<Vector3>(new Vector3().fromArray(props.position as number[]));
+
+  const { position, ...otherProps } = props;
 
   // Rotate mesh every frame, SpriteMaterial, this is outside of React without overhead
   useFrame(() => {
     // mesh.current.rotation.x = mesh.current.rotation.y += 0.0005
-    group.current.rotation.x = group.current.rotation.y += 0.0005
+    group.current.rotation.x = group.current.rotation.y += 0.003
   })
   return (
     <group
-      ref={group}>
+      ref={group}
+      position={position}
+      >
       <mesh
-        {...props}
+        {...otherProps}
         ref={mesh}
         scale={active ? 1.5 : 1}
         onClick={() => setActive(!active)}
@@ -171,8 +178,10 @@ function Box(props: MeshProps) {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
-      <Hotspot position={[position.x + 0.5, position.y + 0.5, position.z + 0.5]}></Hotspot>
-      <Hotspot2 position={[position.x - 0.5, position.y - 0.5, position.z - 0.5]} svg={SvgEye} />
+      <Hotspot position={[Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z + 0.5]}></Hotspot>
+      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5]} svg={SvgLightbulb} />
+      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5]} svg={SvgQuestionCircle} />
+      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5]} svg={SvgEye} />
     </group>
   )
 }
