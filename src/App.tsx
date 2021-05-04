@@ -3,16 +3,11 @@ import { Canvas, ReactThreeFiber, useFrame, useLoader } from '@react-three/fiber
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import { CanvasTexture, Group, Mesh, TextureLoader, Sprite, SpriteMaterial, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
+import { CanvasTexture, Group, Mesh, TextureLoader, Sprite, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
 import { useVector3Store } from './stores';
-// import ThumbsUp from './icons-react/ThumbsUp'
 import SvgEye from './icons/Eye'
-import SvgHandPaper from './icons/HandPaper'
 import SvgLightbulb from './icons/Lightbulb'
 import SvgQuestionCircle from './icons/QuestionCircle'
-
-//import ThumbsUpSvg from './icons/thumbs-up.svg';
-//const ThumbsUpSvg = require('./icons/thumbs-up.svg');
 
 
 interface OBJProps {
@@ -21,8 +16,6 @@ interface OBJProps {
 }
 
 type MeshProps = ReactThreeFiber.Object3DNode<Mesh, typeof Mesh>
-
-
 
 function OBJ(props: MeshProps & OBJProps) {
   const { objUrl, mtlUrl, ...meshProps } = props;
@@ -294,27 +287,6 @@ function Hotspot2(props: MeshProps & any) {
   )
 }
 
-// const SvgTest2 = (props: any) => {
-//   // console.log(props);
-//   const paths: Path2D[] = props.svg.paths.map((path: string) => new Path2D(path));
-//   const viewport = new Vector4(props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
-
-//   const map = new CanvasTexture(drawIcon({paths, viewport}, 'rgba(255, 255, 255, 0.8)', new Vector2(128, 128)));
-//   const material = new SpriteMaterial({map});
-
-//   // Get larger or smaller depending on how far we are.
-//   material.sizeAttenuation = true;
-
-//   const sprite = new Sprite(material);
-
-//   // console.log(iconPaths, viewBox);
-
-//   return (
-//     <>
-//     </>
-//   );
-// }
-
 export default function App() {
   return (
     <Canvas>
@@ -331,8 +303,8 @@ export default function App() {
 
         {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
-        {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-        {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
+        <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
+        <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
       </Suspense>
     </Canvas>
   )
