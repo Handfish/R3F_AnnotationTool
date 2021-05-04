@@ -9,13 +9,16 @@ import SvgEye from './icons/Eye'
 import SvgLightbulb from './icons/Lightbulb'
 import SvgQuestionCircle from './icons/QuestionCircle'
 
-
 interface OBJProps {
   objUrl: string;
   mtlUrl?: string;
 }
 
 type MeshProps = ReactThreeFiber.Object3DNode<Mesh, typeof Mesh>
+
+interface Hotspot2Props extends MeshProps {
+  svg?: any
+}
 
 function OBJ(props: MeshProps & OBJProps) {
   const { objUrl, mtlUrl, ...meshProps } = props;
@@ -51,7 +54,7 @@ function OBJ(props: MeshProps & OBJProps) {
    * Translate Buffer Geometry to Origin
    */
   useEffect(() => {
-    console.log(geometry, initialized, vec);
+    // console.log(geometry, initialized, vec);
 
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();
@@ -119,6 +122,15 @@ function Hotspot(props: MeshProps) {
   const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
   map.encoding = sRGBEncoding
 
+  useFrame(({ camera }) => {
+      const scaleVector = new Vector3();
+      const scaleFactor = 20;
+      const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+      const scale = subVector.length() / scaleFactor;
+      spriteFront.current.scale.set(scale, scale, 1);
+      spriteBack.current.scale.set(scale, scale, 1);
+  })
+
   return (
     <>
       <sprite
@@ -140,7 +152,7 @@ function Hotspot(props: MeshProps) {
   )
 }
 
-function Box(props: MeshProps) {
+function Box(props: MeshProps & Hotspot2Props) {
   // This reference will give us direct access to the mesh
   const group = useRef<Group>(null!);
   const mesh = useRef<Mesh>(null!);
@@ -171,10 +183,10 @@ function Box(props: MeshProps) {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
-      <Hotspot position={[Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z + 0.5]}></Hotspot>
-      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5]} svg={SvgLightbulb} />
-      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5]} svg={SvgQuestionCircle} />
-      <Hotspot2 position={[Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5]} svg={SvgEye} />
+      <Hotspot position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z + 0.5)}></Hotspot>
+      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5)} svg={SvgLightbulb} />
+      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5)} svg={SvgQuestionCircle} />
+      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5)} svg={SvgEye} />
     </group>
   )
 }
@@ -248,7 +260,7 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fi
 }
 
 
-function Hotspot2(props: MeshProps & any) {
+function Hotspot2(props: Hotspot2Props) {
   const [hovered, setHovered] = useState(false)
 
   const spriteFront = useRef<Sprite>(null!);
@@ -265,6 +277,15 @@ function Hotspot2(props: MeshProps & any) {
   const paths: Path2D[] = props.svg.paths.map((path: string) => new Path2D(path));
   const viewport = new Vector4(...props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
   const map = new CanvasTexture(drawIcon({paths, viewport}, 'rgba(255, 255, 255, 0.8)', new Vector2(128, 128)));
+
+  useFrame(({ camera }) => {
+      const scaleVector = new Vector3();
+      const scaleFactor = 20;
+      const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+      const scale = subVector.length() / scaleFactor;
+      spriteFront.current.scale.set(scale, scale, 1);
+      spriteBack.current.scale.set(scale, scale, 1);
+  })
 
   return (
     <>
@@ -298,8 +319,8 @@ export default function App() {
 
 
       <Suspense fallback={null}>
-        <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
+        <Box position={[-1, 0, 0]} />
+        <Box position={[1, 0, 0]} />
 
         {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
