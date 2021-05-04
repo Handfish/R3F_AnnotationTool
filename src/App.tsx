@@ -115,17 +115,13 @@ function Hotspot(props: MeshProps) {
       document.body.style.cursor = hovered ? 'pointer' : 'auto'
   }, [hovered])
 
-
-  // const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
-  // map.encoding = sRGBEncoding
-
   const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
   map.encoding = sRGBEncoding
 
   useFrame(({ camera }) => {
       const scaleVector = new Vector3();
       const scaleFactor = 20;
-      const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+      const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
       const scale = subVector.length() / scaleFactor;
       spriteFront.current.scale.set(scale, scale, 1);
       spriteBack.current.scale.set(scale, scale, 1);
@@ -281,7 +277,8 @@ function Hotspot2(props: Hotspot2Props) {
   useFrame(({ camera }) => {
       const scaleVector = new Vector3();
       const scaleFactor = 20;
-      const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+      // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+      const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
       const scale = subVector.length() / scaleFactor;
       spriteFront.current.scale.set(scale, scale, 1);
       spriteBack.current.scale.set(scale, scale, 1);
