@@ -365,7 +365,8 @@ function DrawCurvesTool () {
   //-------------------
   //-------------------
   
-  const [geometry, matLine, line] = useMemo(() => {
+  //https://github.com/pmndrs/react-three-fiber/issues/103
+  const line = useMemo(() => {
     const positions: number[] = [];
     const colors: number[] = [];
 
@@ -384,7 +385,6 @@ function DrawCurvesTool () {
 
       color.setHSL( t, 1.0, 0.5 );
       colors.push( color.r, color.g, color.b );
-
     }
 
     const geometry = new LineGeometry();
@@ -402,18 +402,13 @@ function DrawCurvesTool () {
 
     const line = new Line2( geometry, matLine );
 
-    return [geometry, matLine, line];
+    return line;
   }, []);
 
-  const lineRef = useRef<Mesh>(line as Mesh);
-
   return (
-    <mesh
-      ref={lineRef}
-      geometry={geometry}
-      material={matLine}
-    >
-    </mesh>
+    <primitive
+      object={line} 
+    ></primitive>
   );
 }
 
