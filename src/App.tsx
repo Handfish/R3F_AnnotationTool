@@ -1,13 +1,22 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
-import { Canvas, ReactThreeFiber, useFrame, useLoader } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, ReactThreeFiber, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import { CanvasTexture, Group, Mesh, TextureLoader, Sprite, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
+import { Html, OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { CatmullRomCurve3, CanvasTexture, Color, Group, Mesh, TextureLoader, Sprite, sRGBEncoding, Vector2, Vector3, Vector4 } from 'three';
 import { useVector3Store } from './stores';
+
 import SvgEye from './icons/Eye'
 import SvgLightbulb from './icons/Lightbulb'
 import SvgQuestionCircle from './icons/QuestionCircle'
+import './App.css';
+
+
+import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils.js'
+
 
 interface OBJProps {
   objUrl: string;
@@ -26,13 +35,13 @@ function OBJ(props: MeshProps & OBJProps) {
   const materials = useLoader(MTLLoader, String(mtlUrl));
   const obj = useLoader(OBJLoader, objUrl, loader => {
 
-      if(mtlUrl) {
-        materials.preload()
-        //@ts-ignore
-        loader.setMaterials(materials) 
-      }
+    if(mtlUrl) {
+      materials.preload()
+      //@ts-ignore
+      loader.setMaterials(materials) 
+    }
 
-      return loader;
+    return loader;
   })
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
@@ -81,7 +90,7 @@ function OBJ(props: MeshProps & OBJProps) {
 
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
-      group.current.rotation.x = group.current.rotation.y += 0.0005
+    group.current.rotation.x = group.current.rotation.y += 0.0005
     // obj.rotation.x = obj.rotation.y += 0.001;
   })
 
@@ -99,7 +108,7 @@ function OBJ(props: MeshProps & OBJProps) {
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
 
       </mesh>
-    
+
       <Hotspot position={hotspotVec}></Hotspot>
     </group>
   )
@@ -112,19 +121,19 @@ function Hotspot(props: MeshProps) {
   const spriteBack = useRef<Sprite>(null!);
 
   useEffect(() => {
-      document.body.style.cursor = hovered ? 'pointer' : 'auto'
+    document.body.style.cursor = hovered ? 'pointer' : 'auto'
   }, [hovered])
 
   const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
-  map.encoding = sRGBEncoding
+  map.encoding = sRGBEncoding;
 
   useFrame(({ camera }) => {
-      const scaleVector = new Vector3();
-      const scaleFactor = 20;
-      const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-      const scale = subVector.length() / scaleFactor;
-      spriteFront.current.scale.set(scale, scale, 1);
-      spriteBack.current.scale.set(scale, scale, 1);
+    const scaleVector = new Vector3();
+    const scaleFactor = 20;
+    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
+    const scale = subVector.length() / scaleFactor;
+    spriteFront.current.scale.set(scale, scale, 1);
+    spriteBack.current.scale.set(scale, scale, 1);
   })
 
   return (
@@ -168,7 +177,7 @@ function Box(props: MeshProps & Hotspot2Props) {
     <group
       ref={group}
       position={position}
-      >
+    >
       <mesh
         {...otherProps}
         ref={mesh}
@@ -196,7 +205,7 @@ function Camera() {
   )
 }
 
-function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fillStyle: string, size: Vector2) {
+function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, iconFillColor: string, size: Vector2) {
   const canvas = document.createElement('canvas');
 
   const STROKE_SIZE = 3;
@@ -220,10 +229,11 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fi
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fill();
   context.beginPath();
-  context.fillStyle = fillStyle;
+  context.fillStyle = 'rgba(255, 255, 255, 0.8)';
 
   context.shadowBlur = STROKE_SIZE;
-  context.shadowColor = 'black';
+  context.shadowColor = iconFillColor;
+  // context.shadowColor = 'black';
 
   // context.strokeStyle = "black"
   // context.lineWidth = 2;
@@ -246,42 +256,41 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, fi
 
   for(let x = 0; x < paths.length; x++) {
     context.beginPath();
-    context.fillStyle = 'black';
+    context.fillStyle = iconFillColor;
     context.fill(new Path2D(paths[x]));
   }
 
   context.restore();
-
   return canvas;
 }
 
 
 function Hotspot2(props: Hotspot2Props) {
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered] = useState(false);
+  const [active, setActive] = useState(false);
 
   const spriteFront = useRef<Sprite>(null!);
   const spriteBack = useRef<Sprite>(null!);
 
   useEffect(() => {
-      document.body.style.cursor = hovered ? 'pointer' : 'auto'
-  }, [hovered])
+    document.body.style.cursor = hovered ? 'pointer' : 'auto';
+  }, [hovered]);
 
-
-  // const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
-  // map.encoding = sRGBEncoding
-
-  const paths: Path2D[] = props.svg.paths.map((path: string) => new Path2D(path));
-  const viewport = new Vector4(...props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
-  const map = new CanvasTexture(drawIcon({paths, viewport}, 'rgba(255, 255, 255, 0.8)', new Vector2(128, 128)));
+  const map = useMemo(() => {
+    const paths = props.svg.paths.map((path: string) => new Path2D(path));
+    const viewport = new Vector4(...props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
+    const map = new CanvasTexture(drawIcon({paths, viewport}, !active ? 'black' : 'teal', new Vector2(128, 128)));
+    return map;
+  }, [props, active]);
 
   useFrame(({ camera }) => {
-      const scaleVector = new Vector3();
-      const scaleFactor = 20;
-      // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
-      const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-      const scale = subVector.length() / scaleFactor;
-      spriteFront.current.scale.set(scale, scale, 1);
-      spriteBack.current.scale.set(scale, scale, 1);
+    const scaleVector = new Vector3();
+    const scaleFactor = 20;
+    // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
+    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
+    const scale = subVector.length() / scaleFactor;
+    spriteFront.current.scale.set(scale, scale, 1);
+    spriteBack.current.scale.set(scale, scale, 1);
   })
 
   return (
@@ -289,8 +298,6 @@ function Hotspot2(props: Hotspot2Props) {
       <sprite
         ref={spriteFront}
         position={props.position}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
       >
         <spriteMaterial attach="material" map={map} />
       </sprite>
@@ -298,12 +305,120 @@ function Hotspot2(props: Hotspot2Props) {
       <sprite
         ref={spriteBack}
         position={props.position}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        onClick={() => setActive(!active)}
       >
         <spriteMaterial attach="material" map={map} opacity={0.3} transparent={true} depthTest={false} />
       </sprite>
+
+      <Annotation position={props.position} active={active}></Annotation>
     </>
   )
 }
+
+interface AnnotationProps {
+  content?: string;
+  active: boolean;
+}
+
+function Annotation (props: MeshProps & AnnotationProps) {
+  return (
+    <Html position={props.position} style={{ width:'260px', pointerEvents: 'none' }}>
+      <div className='annotation-content' hidden={!props.active}>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+        sed do eiusmod tempor incididunt ut labore et dolore  
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation  
+      </div>
+    </Html>
+  );
+}
+
+
+function DrawCurvesTool () {
+  const {
+    camera,
+    gl: { domElement }
+  } = useThree();
+
+
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  useEffect(() => {
+    domElement.onmousedown = function(e) {
+      setIsDrawing(true);
+    };
+    domElement.onmouseup = function(e) {
+      setIsDrawing(false);
+    };
+
+    //TODO set eventlistener to variable and remove event listener
+    return () => {};
+  }, [domElement])
+
+
+  if(isDrawing) {
+
+  }
+
+  //-------------------
+  //-------------------
+  //-------------------
+  
+  const [geometry, matLine, line] = useMemo(() => {
+    const positions: number[] = [];
+    const colors: number[] = [];
+
+    const points = GeometryUtils.hilbert3D( new Vector3( 0, 0, 0 ), 20.0, 1, 0, 1, 2, 3, 4, 5, 6, 7 );
+
+    const spline = new CatmullRomCurve3( points );
+    const divisions = Math.round( 12 * points.length );
+    const point = new Vector3();
+    const color = new Color();
+
+    for ( let i = 0, l = divisions; i < l; i ++ ) {
+      const t = i / l;
+
+      spline.getPoint( t, point );
+      positions.push( point.x, point.y, point.z );
+
+      color.setHSL( t, 1.0, 0.5 );
+      colors.push( color.r, color.g, color.b );
+
+    }
+
+    const geometry = new LineGeometry();
+    geometry.setPositions( positions );
+    geometry.setColors( colors );
+
+    const matLine = new LineMaterial( {
+      color: 0xffffff,
+      linewidth: 5, // in pixels
+      vertexColors: true,
+      resolution: new Vector2(window.innerWidth, window.innerHeight), // TODO - react to windowsize - to be set by renderer, eventually
+      dashed: false,
+      alphaToCoverage: true,
+    } );
+
+    const line = new Line2( geometry, matLine );
+
+    return [geometry, matLine, line];
+  }, []);
+
+  const lineRef = useRef<Mesh>(line as Mesh);
+
+  return (
+    <mesh
+      ref={lineRef}
+      geometry={geometry}
+      material={matLine}
+    >
+    </mesh>
+  );
+}
+
+
+
 
 export default function App() {
   return (
@@ -314,6 +429,7 @@ export default function App() {
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
 
+      <DrawCurvesTool />
 
       <Suspense fallback={null}>
         <Box position={[-1, 0, 0]} />

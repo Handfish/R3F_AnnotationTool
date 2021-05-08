@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+.annotation-content {
+  padding-top: 10px;
+  /* transform: translate3d(50%, 0, 0); */
+  transform: translate3d(25px, 0, 0);
+  text-align: left;
+  background: #202035;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
