@@ -49,7 +49,6 @@ function OBJ(props: MeshProps & OBJProps) {
 
 
   const group = useRef<Group>(null!);
-  const mesh = useRef<Mesh>(obj.children[0]! as Mesh);
   const { geometry } = obj.children[0] as Mesh;
 
   const vec = useVector3Store(state => state.vec);
@@ -99,12 +98,20 @@ function OBJ(props: MeshProps & OBJProps) {
       ref={group}>
       <mesh
         {...meshProps}
-        ref={mesh}
         geometry={geometry}
         scale={active ? 1.5 : 1}
-        onClick={() => setActive(!active)}
-        onPointerOver={() => setHover(true)}
-        onPointerOut={() => setHover(false)}>
+        onClick={() => {
+          // e.stopPropagation()
+          setActive(!active)
+        }}
+        onPointerOver={() => {
+          // e.stopPropagation()
+          setHover(true)
+        }}
+        onPointerOut={() => {
+          // e.stopPropagation()
+          setHover(false)
+        }}>
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
 
       </mesh>
@@ -141,8 +148,14 @@ function Hotspot(props: MeshProps) {
       <sprite
         ref={spriteFront}
         position={props.position}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          setHovered(true)
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          setHovered(false)
+        }}
       >
         <spriteMaterial attach="material" map={map} />
       </sprite>
@@ -164,7 +177,7 @@ function Box(props: MeshProps & Hotspot2Props) {
   // Set up state for the hovered and active state
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
-  const [positionArr] = useState<Vector3>(new Vector3().fromArray(props.position as number[]));
+  const positionArr = useMemo(() => new Vector3().fromArray(props.position as number[]), [props]);
 
   const { position, ...otherProps } = props;
 
@@ -182,9 +195,18 @@ function Box(props: MeshProps & Hotspot2Props) {
         {...otherProps}
         ref={mesh}
         scale={active ? 1.5 : 1}
-        onClick={() => setActive(!active)}
-        onPointerOver={() => setHover(true)}
-        onPointerOut={() => setHover(false)}>
+        onClick={() => {
+          // e.stopPropagation()
+          setActive(!active)
+        }}
+        onPointerOver={() => {
+          // e.stopPropagation()
+          setHover(true)
+        }}
+        onPointerOut={() => {
+          // e.stopPropagation()
+          setHover(false)
+        }}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
@@ -305,9 +327,18 @@ function Hotspot2(props: Hotspot2Props) {
       <sprite
         ref={spriteBack}
         position={props.position}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-        onClick={() => setActive(!active)}
+        onPointerOver={() => {
+          // e.stopPropagation()
+          setHovered(true)
+        }}
+        onPointerOut={() => {
+          // e.stopPropagation()
+          setHovered(false)
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          setActive(!active)
+        }}
       >
         <spriteMaterial attach="material" map={map} opacity={0.3} transparent={true} depthTest={false} />
       </sprite>
@@ -338,23 +369,25 @@ function Annotation (props: MeshProps & AnnotationProps) {
 function DrawCurvesTool () {
   const {
     camera,
-    gl: { domElement }
+    // gl: { domElement }
+    gl
   } = useThree();
-
 
   const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
-    domElement.onmousedown = function(e) {
+    const { domElement } =  gl;
+
+    domElement.onmousedown = function() {
       setIsDrawing(true);
     };
-    domElement.onmouseup = function(e) {
+    domElement.onmouseup = function() {
       setIsDrawing(false);
     };
 
     //TODO set eventlistener to variable and remove event listener
     return () => {};
-  }, [domElement])
+  }, [gl])
 
 
   if(isDrawing) {
@@ -397,10 +430,12 @@ function DrawCurvesTool () {
       vertexColors: true,
       resolution: new Vector2(window.innerWidth, window.innerHeight), // TODO - react to windowsize - to be set by renderer, eventually
       dashed: false,
-      alphaToCoverage: true,
+      alphaToCoverage: false,
     } );
 
     const line = new Line2( geometry, matLine );
+    line.computeLineDistances();
+    line.scale.set( 1, 1, 1 );
 
     return line;
   }, []);
@@ -417,7 +452,10 @@ function DrawCurvesTool () {
 
 export default function App() {
   return (
-    <Canvas>
+
+    <Canvas
+        gl={{ powerPreference: "high-performance", antialias: true }}
+    >
       <Camera />
 
       <ambientLight intensity={0.5} />
