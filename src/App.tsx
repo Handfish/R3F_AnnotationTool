@@ -25,7 +25,7 @@ interface OBJProps {
 
 type MeshProps = ReactThreeFiber.Object3DNode<Mesh, typeof Mesh>
 
-interface Hotspot2Props extends MeshProps {
+interface HotspotSvgProps extends MeshProps {
   svg?: any
 }
 
@@ -170,7 +170,7 @@ function Hotspot(props: MeshProps) {
   )
 }
 
-function Box(props: MeshProps & Hotspot2Props) {
+function Box(props: MeshProps & HotspotSvgProps) {
   // This reference will give us direct access to the mesh
   const group = useRef<Group>(null!);
   const mesh = useRef<Mesh>(null!);
@@ -211,9 +211,9 @@ function Box(props: MeshProps & Hotspot2Props) {
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
       <Hotspot position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z + 0.5)}></Hotspot>
-      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5)} svg={SvgLightbulb} />
-      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5)} svg={SvgQuestionCircle} />
-      <Hotspot2 position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5)} svg={SvgEye} />
+      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5)} svg={SvgLightbulb} />
+      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5)} svg={SvgQuestionCircle} />
+      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5)} svg={SvgEye} />
     </group>
   )
 }
@@ -287,7 +287,7 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, ic
 }
 
 
-function Hotspot2(props: Hotspot2Props) {
+function HotspotSvg(props: HotspotSvgProps) {
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
 
