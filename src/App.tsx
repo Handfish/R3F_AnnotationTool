@@ -430,7 +430,7 @@ function DrawCurvesTool () {
       vertexColors: true,
       resolution: new Vector2(window.innerWidth, window.innerHeight), // TODO - react to windowsize - to be set by renderer, eventually
       dashed: false,
-      alphaToCoverage: false,
+      alphaToCoverage: false, // https://threejs.org/docs/#api/en/materials/Material.alphaToCoverage
     } );
 
     const line = new Line2( geometry, matLine );
