@@ -3,7 +3,7 @@ import { useFrame, useLoader } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { Group, Mesh, Vector3 } from 'three';
-import { useVector3Store } from '../stores';
+import { useVector3Store } from '../stores/stores';
 
 import Hotspot from './Hotspot';
 
