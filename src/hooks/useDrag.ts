@@ -1,6 +1,6 @@
 //https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
 import { useContext, useCallback, useEffect, useRef, useState } from 'react'
-import camContext from '../camera/CameraContext';
+import camContext from '../components/camera/CameraContext';
 
 export function useDrag(onDrag: any, onEnd: any) {
     const [active, setActive] = useState(false)
