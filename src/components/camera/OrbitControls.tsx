@@ -1,6 +1,8 @@
+//https://github.com/pmndrs/drei/blob/master/src/core/OrbitControls.tsx
+
 import { useEffect, useRef, useState} from 'react';
 import { extend, useThree, ReactThreeFiber } from '@react-three/fiber'
-import camContext from './CameraContext';
+// import camContext from './CameraContext';
 // @ts-ignore
 import { OrbitControls } from 'three-stdlib';
 extend({ OrbitControls })
@@ -13,7 +15,8 @@ declare global {
   }
 }
 
-export default function Controls({ children }: any) {
+// export default function Controls({ children }: any) {
+export default function Controls() {
     const { gl, camera, invalidate } = useThree()
     const api = useState(true)
     const ref = useRef<OrbitControls>(null!)
@@ -26,7 +29,7 @@ export default function Controls({ children }: any) {
     return (
           <>
             <orbitControls ref={ref} args={[camera, gl.domElement]} enableDamping enabled={api[0]} />
-            <camContext.Provider value={api as any}>{children}</camContext.Provider>
+            {/* <camContext.Provider value={api as any}>{children}</camContext.Provider> */}
           </>
         )
 }

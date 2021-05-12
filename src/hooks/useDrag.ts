@@ -1,32 +1,35 @@
 //https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
-import { useContext, useCallback, useEffect, useRef, useState } from 'react'
-import camContext from '../components/camera/CameraContext';
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useOrbitSpeedStore } from '../stores/stores';
+
 
 export function useDrag(onDrag: any, onEnd: any) {
   const [active, setActive] = useState(false)
-  //const [, toggle] = useContext(camContext) as any
-
-  const [, toggle] = useContext(camContext) as any
 
   const down = useCallback(
     (e) => {
       setActive(true)
-      toggle(false)
+      useOrbitSpeedStore.setState({ 
+        speed: 0.0,
+      });
       e.stopPropagation()
       e.target.setPointerCapture(e.pointerId)
     },
-    [toggle],
+    [],
   )
 
   const up = useCallback(
     (e) => {
       setActive(false)
-      toggle(true)
+      useOrbitSpeedStore.setState({ 
+        speed: 0.5,
+      });
+
       e.stopPropagation()
       e.target.releasePointerCapture(e.pointerId)
       if (onEnd) onEnd()
     },
-    [onEnd, toggle],
+    [onEnd],
   )
 
   const activeRef = useRef<any>()

@@ -17,3 +17,19 @@ export const useVector3Store = create<Vector3Store>((set: SetState<Vector3Store>
       });
     }
 }));
+
+
+
+type OrbitSpeedStore = {
+    speed: number;
+    setSpeed: (input: number) => void;
+};
+
+export const useOrbitSpeedStore = create<OrbitSpeedStore>((set: SetState<OrbitSpeedStore>, get: GetState<OrbitSpeedStore>) => ({
+    speed: 0.5,
+    setSpeed: (input: number): void =>  {
+      set({ 
+        speed: input,
+      });
+    }
+}));
