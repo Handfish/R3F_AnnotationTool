@@ -76,14 +76,15 @@ export default function OBJ(props: MeshProps & OBJProps) {
 
   return (
     <group
-      ref={group}>
+      ref={group}
+      >
       <mesh
         {...meshProps}
         geometry={geometry}
         scale={active ? 1.5 : 1}
         onClick={() => {
           // e.stopPropagation()
-          setActive(!active)
+          // setActive(!active)
         }}
         onPointerOver={() => {
           // e.stopPropagation()
@@ -92,7 +93,9 @@ export default function OBJ(props: MeshProps & OBJProps) {
         onPointerOut={() => {
           // e.stopPropagation()
           setHover(false)
-        }}>
+        }}
+        >
+
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
 
       </mesh>

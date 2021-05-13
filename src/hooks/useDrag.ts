@@ -24,7 +24,6 @@ export function useDrag(onDrag: any, onEnd: any) {
       useOrbitSpeedStore.setState({ 
         speed: 0.5,
       });
-
       e.stopPropagation()
       e.target.releasePointerCapture(e.pointerId)
       if (onEnd) onEnd()
@@ -33,12 +32,13 @@ export function useDrag(onDrag: any, onEnd: any) {
   )
 
   const activeRef = useRef<any>()
+
   useEffect(() => void (activeRef.current = active))
   const move = useCallback(
     (event) => {
       if (activeRef.current) {
         event.stopPropagation()
-        onDrag(event.unprojectedPoint)
+        onDrag(event.point);
       }
     },
     [onDrag],
