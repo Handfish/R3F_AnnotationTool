@@ -1,14 +1,23 @@
 //https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useOrbitSpeedStore } from '../stores/stores';
+import { Vector3 } from 'three';
 
 
 export function useDrag(onDrag: any, onEnd: any) {
   const [active, setActive] = useState(false)
+  const [point, setPoint] = useState<Vector3>(new Vector3());
+  const [originPoint, setOriginPoint] = useState<Vector3>(new Vector3());
+
+  const originPointRef = useRef<any>()
+  useEffect(() => void (originPointRef.current = originPoint))
 
   const down = useCallback(
     (e) => {
       setActive(true)
+      setOriginPoint(e.point);
+      // console.log(e.point, originPoint, originPointRef.current);
+
       useOrbitSpeedStore.setState({ 
         speed: 0.0,
       });
@@ -32,13 +41,26 @@ export function useDrag(onDrag: any, onEnd: any) {
   )
 
   const activeRef = useRef<any>()
-
   useEffect(() => void (activeRef.current = active))
+
+  const pointRef = useRef<any>()
+  useEffect(() => void (pointRef.current = point))
+
+
   const move = useCallback(
     (event) => {
       if (activeRef.current) {
-        event.stopPropagation()
-        onDrag(event.point);
+        event.stopPropagation();
+
+        // console.log(event);
+        
+        if(!pointRef.current.equals(event.point) && !originPointRef.current.equals(event.point)) 
+        {
+          onDrag(event.point.add(event.face.normal));
+          setPoint(event.point);
+        }
+
+        // onDrag(event.point);
       }
     },
     [onDrag],

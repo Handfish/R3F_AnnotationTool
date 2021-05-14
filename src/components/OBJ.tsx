@@ -70,8 +70,8 @@ export default function OBJ(props: MeshProps & OBJProps) {
 
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame(() => {
-    group.current.rotation.x = group.current.rotation.y += 0.0005
-    // obj.rotation.x = obj.rotation.y += 0.001;
+    // group.current.rotation.x = group.current.rotation.y += 0.0005
+    // // obj.rotation.x = obj.rotation.y += 0.001;
   })
 
   return (

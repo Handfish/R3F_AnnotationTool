@@ -47,7 +47,7 @@ function DrawCurvesTool(props: { vertices: Vertices }) {
 
     const matLine = new LineMaterial( {
       color: 0xffffff,
-      linewidth: 5, // in pixels
+      linewidth: 8, // in pixels
       vertexColors: true,
       resolution: new Vector2(window.innerWidth, window.innerHeight), // TODO - react to windowsize - to be set by renderer, eventually
       dashed: false,
@@ -62,7 +62,7 @@ function DrawCurvesTool(props: { vertices: Vertices }) {
   }, [props.vertices]);
 
   useEffect(() => {
-    // console.log(props.vertices);
+    console.log(props.vertices);
   }, [props.vertices]);
 
   return (
@@ -74,23 +74,32 @@ function DrawCurvesTool(props: { vertices: Vertices }) {
 
 function UseDragTool () {
   const [vertices, setVertices] = useState<Vertices>([]);
-  const verticesRef = useRef<any>();
+
+  //https://stackoverflow.com/a/58877875
+  const verticesRef = useRef<any>([]);
 
   useEffect(() => {
-    verticesRef.current = vertices
+    verticesRef.current = vertices;
   })
 
   const onDrag = (v: any) => { 
-    setVertices([...verticesRef.current, v]);
-  };
+    console.log(v)
 
-  // useEffect(() => {
-  //   console.log('changed', vertices);
-  // }, [vertices])
+    // setVertices([...verticesRef.current, v]);
+
+    if(verticesRef?.current.length > 0 && !verticesRef.current[verticesRef.current.length-1].equals(v))
+      setVertices([...verticesRef.current, v]);
+    else if(verticesRef?.current.length <= 0)
+      setVertices([...verticesRef.current, v]);
+  };
 
   const onEnd = () => { console.log('end'); return null };
 
   let bindDrag = useDrag(onDrag, onEnd);
+
+  // useEffect(() => {
+  //   console.log('changed', vertices);
+  // }, [vertices])
 
   return (
     < >
