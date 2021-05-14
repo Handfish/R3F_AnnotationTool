@@ -16,7 +16,7 @@ import './App.css';
 
 type Vertices = Vector3[];
 
-function DrawCurvesTool(props: { vertices: Vertices }) {
+function Curve(props: { vertices: Vertices }) {
 
   //TODO Split useMemo to utilize updateGeometry flags instead of building new line
   const line = useMemo(() => {
@@ -62,7 +62,7 @@ function DrawCurvesTool(props: { vertices: Vertices }) {
   }, [props.vertices]);
 
   useEffect(() => {
-    console.log(props.vertices);
+    // console.log(props.vertices);
   }, [props.vertices]);
 
   return (
@@ -72,7 +72,7 @@ function DrawCurvesTool(props: { vertices: Vertices }) {
   );
 }
 
-function UseDragTool () {
+function DrawCurveTool () {
   const [vertices, setVertices] = useState<Vertices>([]);
 
   //https://stackoverflow.com/a/58877875
@@ -104,7 +104,7 @@ function UseDragTool () {
   return (
     < >
       <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
-      <DrawCurvesTool vertices={vertices}/>
+      <Curve vertices={vertices}/>
     </>
   );
 }
@@ -129,7 +129,7 @@ export default function App() {
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
 
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-        <UseDragTool />
+        <DrawCurveTool />
         <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
       </Suspense>
 

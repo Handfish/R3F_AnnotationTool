@@ -3,49 +3,47 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useOrbitSpeedStore } from '../stores/stores';
 import { Vector3 } from 'three';
 
-
 export function useDrag(onDrag: any, onEnd: any) {
-  const [active, setActive] = useState(false)
+  const [active, setActive] = useState(false);
   const [point, setPoint] = useState<Vector3>(new Vector3());
   const [originPoint, setOriginPoint] = useState<Vector3>(new Vector3());
 
-  const originPointRef = useRef<any>()
-  useEffect(() => void (originPointRef.current = originPoint))
+  const originPointRef = useRef<any>();
+  useEffect(() => void (originPointRef.current = originPoint));
+
+  const activeRef = useRef<any>();
+  useEffect(() => void (activeRef.current = active));
+
+  const pointRef = useRef<any>();
+  useEffect(() => void (pointRef.current = point));
 
   const down = useCallback(
     (e) => {
-      setActive(true)
+      setActive(true);
       setOriginPoint(e.point);
       // console.log(e.point, originPoint, originPointRef.current);
 
       useOrbitSpeedStore.setState({ 
         speed: 0.0,
       });
-      e.stopPropagation()
-      e.target.setPointerCapture(e.pointerId)
+      e.stopPropagation();
+      e.target.setPointerCapture(e.pointerId);
     },
     [],
-  )
+  );
 
   const up = useCallback(
     (e) => {
-      setActive(false)
+      setActive(false);
       useOrbitSpeedStore.setState({ 
         speed: 0.5,
       });
-      e.stopPropagation()
-      e.target.releasePointerCapture(e.pointerId)
-      if (onEnd) onEnd()
+      e.stopPropagation();
+      e.target.releasePointerCapture(e.pointerId);
+      if (onEnd) onEnd();
     },
     [onEnd],
-  )
-
-  const activeRef = useRef<any>()
-  useEffect(() => void (activeRef.current = active))
-
-  const pointRef = useRef<any>()
-  useEffect(() => void (pointRef.current = point))
-
+  );
 
   const move = useCallback(
     (event) => {
@@ -70,7 +68,7 @@ export function useDrag(onDrag: any, onEnd: any) {
       }
     },
     [onDrag],
-  )
+  );
 
   const [bind] = useState(() => ({ onPointerDown: down, onPointerUp: up, onPointerMove: move }))
   return bind
