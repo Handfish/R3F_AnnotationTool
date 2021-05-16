@@ -1,7 +1,9 @@
 import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import Box from './components/Box'
 import OBJ from './components/OBJ'
+// import Hotspot from './components/Hotspot'
+
 // import HilbertCurve from './components/HilbertCurve'
 
 import { useDrag } from './hooks/useDrag';
@@ -11,16 +13,19 @@ import { CatmullRomCurve3, Color, Object3D, Vector2, Vector3 } from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+// import { useCurvesStore } from './stores/stores';
+
+import type { Vertices } from './@types/custom-typings';
 
 import './App.css';
 
-type Vertices = Vector3[];
+
 
 function Curve(props: { vertices: Vertices }) {
 
   //TODO Split useMemo to utilize updateGeometry flags instead of building new line
   const line = useMemo(() => {
-    if(props.vertices.length === 0 || props.vertices.length === 1)
+    if(props.vertices === undefined || props.vertices.length === 0 || props.vertices.length === 1)
       return new Object3D();
 
     const positions: number[] = [];
@@ -73,41 +78,82 @@ function Curve(props: { vertices: Vertices }) {
 }
 
 function DrawCurveTool () {
+  // const [,forceUpdate] = useState();
+
   const [vertices, setVertices] = useState<Vertices>([]);
+  const [curves, setCurves] = useState<Vertices[]>([]);
 
   //https://stackoverflow.com/a/58877875
   const verticesRef = useRef<any>([]);
+  const curvesRef = useRef<any>([]);
+
+  // const curvesRef = useCallbackRef<any>([], () => setCurves([...curves, vertices]));
+
 
   useEffect(() => {
     verticesRef.current = vertices;
+    curvesRef.current = curves;
   })
 
   const onDrag = (v: any) => { 
-    console.log(v)
+    // console.log(v)
 
     // setVertices([...verticesRef.current, v]);
 
-    if(verticesRef?.current.length > 0 && !verticesRef.current[verticesRef.current.length-1].equals(v))
+    if(vertices.length > 0 && !vertices[vertices.length-1].equals(v))
       setVertices([...verticesRef.current, v]);
-    else if(verticesRef?.current.length <= 0)
+    else if(vertices.length <= 0)
       setVertices([...verticesRef.current, v]);
+
+    // if(verticesRef?.current.length > 0 && !verticesRef.current[verticesRef.current.length-1].equals(v))
+      // setVertices([...verticesRef.current, v]);
+    // else if(verticesRef?.current.length <= 0)
+      // setVertices([...verticesRef.current, v]);
   };
 
-  const onEnd = () => { console.log('end'); return null };
+  const onEnd = () => { 
+      setCurves([...(curvesRef.current.filter((array: Vertices) => array.length > 0)), verticesRef.current]);
+  };
+
+  useEffect(() => {
+    // useCurvesStore.setState({ 
+    //   curves,
+    // });
+
+    setVertices([]);
+  }, [curves]);
+
+
+
+  const curvesMap = curves.map((curve, i) =>
+    (<Curve key={i} vertices={curves[i]}  />)
+  );
 
   let bindDrag = useDrag(onDrag, onEnd);
-
-  // useEffect(() => {
-  //   console.log('changed', vertices);
-  // }, [vertices])
 
   return (
     < >
       <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
       <Curve vertices={vertices}/>
+      {curvesMap}
     </>
   );
 }
+
+// function CurvesArray() {
+//   const curves = useCurvesStore(state => state.curves);
+  
+//   const curvesMap = curves.map((curve, i) =>
+//     (<Curve key={i} vertices={curves[i]}  />)
+//   );
+
+//   return (
+//     <>
+//       {curvesMap}
+//     </>
+//   );
+// }
+
 
 export default function App() {
   return (
@@ -130,6 +176,7 @@ export default function App() {
 
         {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
         <DrawCurveTool />
+        {/* <CurvesArray /> */}
         <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
       </Suspense>
 

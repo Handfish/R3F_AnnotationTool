@@ -20,3 +20,5 @@ interface AnnotationProps {
   content?: string;
   active: boolean;
 }
+
+type Vertices = Vector3[];

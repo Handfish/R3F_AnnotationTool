@@ -53,8 +53,8 @@ export function useDrag(onDrag: any, onEnd: any) {
         // console.log(event);
 
         //TODO 
-        //return tuple of no normal added point and normal added point
-        // snap curve to position on mouse up
+        // return tuple of no normal added point and normal added point
+        //  snap curve to position on mouse up
         //
         // Add ability to close curve
         
