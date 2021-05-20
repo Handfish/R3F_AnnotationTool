@@ -1,5 +1,6 @@
 import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import Annotation from './components/Annotation'
 import Box from './components/Box'
 import OBJ from './components/OBJ'
 // import Hotspot from './components/Hotspot'
@@ -9,7 +10,7 @@ import OBJ from './components/OBJ'
 import { useDrag } from './hooks/useDrag';
 import BasicCamera from './components/BasicCamera'
 
-import { CatmullRomCurve3, Color, Object3D, Vector2, Vector3 } from 'three';
+import { Box3, CatmullRomCurve3, Color, Object3D, Vector2, Vector3 } from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
@@ -22,11 +23,22 @@ import './App.css';
 
 
 function Curve(props: { vertices: Vertices }) {
+  const [active, setActive] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const lineMaterialRef = useRef<any>(null!);
+
+  useEffect(() => {
+    document.body.style.cursor = hovered ? 'pointer' : 'auto';
+  }, [hovered]);
+
+  // const lineGeometryRef = useRef<any>(null!);
 
   //TODO Split useMemo to utilize updateGeometry flags instead of building new line
-  const line = useMemo(() => {
+  const [line, position, geometryVector] = useMemo(() => {
+    let position = new Vector3(0,0,0), geometryVector = new Vector3(0,0,0);
+
     if(props.vertices === undefined || props.vertices.length === 0 || props.vertices.length === 1)
-      return new Object3D();
+      return [new Object3D(), position, geometryVector];
 
     const positions: number[] = [];
     const colors: number[] = [];
@@ -63,17 +75,68 @@ function Curve(props: { vertices: Vertices }) {
     line.computeLineDistances();
     line.scale.set( 1, 1, 1 );
 
-    return line;
+
+
+    const bbox = new Box3().setFromObject(line);
+
+    if(bbox.min.x !== Infinity && 
+       bbox.min.y !== Infinity &&
+       bbox.min.z !== Infinity &&
+       bbox.max.x !== Infinity &&
+       bbox.max.y !== Infinity &&
+       bbox.max.z !== Infinity 
+    ) {
+      position = new Vector3()
+      bbox.getCenter(position);
+      geometryVector = new Vector3().copy(bbox.max).sub(bbox.min);
+    }
+
+
+
+    return [line, position, geometryVector];
+
   }, [props.vertices]);
 
   useEffect(() => {
     // console.log(props.vertices);
   }, [props.vertices]);
 
+
+  useEffect(() => {
+    lineMaterialRef.current = (line as Line2)!.material || new LineMaterial();
+    // lineGeometryRef.current = (line as Line2)!.geometry || new LineGeometry();
+  }, [line]);
+
+
   return (
-    <primitive
-      object={line} 
-    ></primitive>
+    <>
+      <primitive
+        object={line} 
+      ></primitive>
+      
+      <mesh 
+        position={position.toArray()}
+        onPointerOver={() => {
+          lineMaterialRef.current.vertexColors = false;
+          lineMaterialRef.current.needsUpdate = true;
+          setHovered(true)
+        }}
+        onPointerOut={() => {
+          lineMaterialRef.current.vertexColors = true;
+          lineMaterialRef.current.needsUpdate = true;
+          setHovered(false)
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          setActive(!active)
+        }}
+        >
+        <boxGeometry args={geometryVector.toArray()} />
+        <meshStandardMaterial color={'green'} visible={false} />
+      </mesh>
+
+      <Annotation position={position.toArray()} active={active}></Annotation>
+    </>
   );
 }
 
