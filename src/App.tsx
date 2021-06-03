@@ -14,6 +14,9 @@ import { Box3, CatmullRomCurve3, Color, Object3D, Vector2, Vector3 } from 'three
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+
+import { useMouseEvents } from './hooks/useMouseEvents';
+import { v4 as uuidv4 } from 'uuid';
 // import { useCurvesStore } from './stores/stores';
 
 import type { Vertices } from './@types/custom-typings';
@@ -21,17 +24,14 @@ import type { Vertices } from './@types/custom-typings';
 import './App.css';
 
 
-
 function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const lineMaterialRef = useRef<any>(null!);
 
-  useEffect(() => {
-    document.body.style.cursor = hovered ? 'pointer' : 'auto';
-  }, [hovered]);
-
   // const lineGeometryRef = useRef<any>(null!);
+
+  const uuid = useMemo(() => uuidv4(), []);
+  const { onPointerOver: mouseEventsMapOver, onPointerOut: mouseEventsMapOut } = useMouseEvents(uuid);
 
   //TODO Split useMemo to utilize updateGeometry flags instead of building new line
   const [line, position, geometryVector] = useMemo(() => {
@@ -91,10 +91,7 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
       geometryVector = new Vector3().copy(bbox.max).sub(bbox.min);
     }
 
-
-
     return [line, position, geometryVector];
-
   }, [props.vertices]);
 
   useEffect(() => {
@@ -118,16 +115,16 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
         position={position.toArray()}
         onPointerOver={() => {
           if(props.hoverable) {
+            mouseEventsMapOver(uuid);
             lineMaterialRef.current.vertexColors = false;
             lineMaterialRef.current.needsUpdate = true;
-            setHovered(true)
           }
         }}
         onPointerOut={() => {
           if(props.hoverable) {
+            mouseEventsMapOut(uuid);
             lineMaterialRef.current.vertexColors = true;
             lineMaterialRef.current.needsUpdate = true;
-            setHovered(false)
           }
         }}
         onClick={(e) => {

@@ -1,8 +1,9 @@
-//https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useOrbitSpeedStore } from '../stores/stores';
 import { Vector3 } from 'three';
 
+// Derived from the following code:
+// https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
 export function useDrag(onDrag: any, onEnd: any) {
   const [active, setActive] = useState(false);
   const [point, setPoint] = useState<Vector3>(new Vector3());

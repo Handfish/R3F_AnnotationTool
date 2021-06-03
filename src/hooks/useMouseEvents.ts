@@ -20,7 +20,8 @@ export function useMouseEvents(uuid: string) {
 
     const intersections = useMouseOverStore.getState().intersections;
 
-    console.log(Object.keys(intersections).length);
+    // console.log(Object.keys(intersections).length);
+
     if(Object.keys(intersections).length > 0)
       setCursorPointer(true);
     else
@@ -38,7 +39,8 @@ export function useMouseEvents(uuid: string) {
 
     const intersections = useMouseOverStore.getState().intersections;
 
-    console.log(Object.keys(intersections).length);
+    // console.log(Object.keys(intersections).length);
+
     if(Object.keys(intersections).length > 0)
       setCursorPointer(true);
     else
