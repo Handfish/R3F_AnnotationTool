@@ -1,6 +1,7 @@
 import create, { SetState, GetState } from 'zustand';
 import { Vector3 } from 'three';
-import type { Vertices } from '../@types/custom-typings';
+import type { MouseEventData, Vertices } from '../@types/custom-typings';
+// import type { PartialState } from zustand;
 
 type Vector3Store = {
     vec: Vector3;
@@ -55,4 +56,48 @@ export const useCurvesStore = create<CurvesStore>((set: SetState<CurvesStore>, g
         curves: input,
       });
     }
+}));
+
+
+
+
+// interface IIntersections {
+//   [key: string]: MouseEventData;
+//   // [key: string]: MouseEventData | PartialState<MouseOverStore, keyof MouseOverStore>;
+// }
+
+type MouseOverStore = {
+    //TODO: Figure out this type
+    // intersections: IIntersections,
+  
+    intersections: any,
+    addElement: (data: MouseEventData) => void;
+    removeElement: (data: MouseEventData) => void;
+};
+
+export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOverStore>, get: GetState<MouseOverStore>) => ({
+    intersections: {},
+    addElement: (data: MouseEventData): void => {
+      const { intersections } = get();
+
+      const intersectionsMerge = {...intersections, [data.uuid]: data};
+
+      // console.log(intersectionsMerge);
+      set({
+        intersections: intersectionsMerge
+      });
+
+    },
+    removeElement: (data: MouseEventData): void => {
+      const { intersections } = get();
+      const uuid = data.uuid;
+
+      //Remove uuid from map
+      const{ [uuid]: unusedValue, ...rest } = intersections
+
+      // console.log(rest);
+      set({ 
+        intersections: rest,
+      });
+    },
 }));

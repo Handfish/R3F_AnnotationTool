@@ -1,18 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame, useLoader } from '@react-three/fiber'
 import { Sprite, Vector3, sRGBEncoding, TextureLoader } from 'three';
+import { v4 as uuidv4 } from 'uuid';
+import { useMouseEvents } from '../hooks/useMouseEvents';
 
 import type { MeshProps } from '../@types/custom-typings';
 
 export default function Hotspot(props: MeshProps) {
-  const [hovered, setHovered] = useState(false)
+  const uuid = useMemo(() => uuidv4(), []);
+  const {onPointerOver, onPointerOut} = useMouseEvents(uuid);
 
   const spriteFront = useRef<Sprite>(null!);
   const spriteBack = useRef<Sprite>(null!);
-
-  useEffect(() => {
-    document.body.style.cursor = hovered ? 'pointer' : 'auto'
-  }, [hovered])
 
   const map = useLoader(TextureLoader, "https://i.imgur.com/EZynrrA.png");
   map.encoding = sRGBEncoding;
@@ -27,18 +26,12 @@ export default function Hotspot(props: MeshProps) {
   })
 
   return (
-    <>
+    <group>
       <sprite
         ref={spriteFront}
         position={props.position}
-        onPointerOver={(e) => {
-          e.stopPropagation()
-          setHovered(true)
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation()
-          setHovered(false)
-        }}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
       >
         <spriteMaterial attach="material" map={map} />
       </sprite>
@@ -49,6 +42,6 @@ export default function Hotspot(props: MeshProps) {
       >
         <spriteMaterial attach="material" map={map} opacity={0.3} transparent={true} depthTest={false} />
       </sprite>
-    </>
+    </group>
   )
 }

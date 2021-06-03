@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { CanvasTexture, Sprite, Vector2, Vector3, Vector4 } from 'three';
 import Annotation from './Annotation';
+import { v4 as uuidv4 } from 'uuid';
+import { useMouseEvents } from '../hooks/useMouseEvents';
 
 import type { HotspotSvgProps } from '../@types/custom-typings';
 
@@ -66,15 +68,13 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, ic
 
 
 export default function HotspotSvg(props: HotspotSvgProps) {
-  const [hovered, setHovered] = useState(false);
+  const uuid = useMemo(() => uuidv4(), []);
   const [active, setActive] = useState(false);
+  const {onPointerOver, onPointerOut} = useMouseEvents(uuid);
 
   const spriteFront = useRef<Sprite>(null!);
   const spriteBack = useRef<Sprite>(null!);
 
-  useEffect(() => {
-    document.body.style.cursor = hovered ? 'pointer' : 'auto';
-  }, [hovered]);
 
   const map = useMemo(() => {
     const paths = props.svg.paths.map((path: string) => new Path2D(path));
@@ -94,7 +94,14 @@ export default function HotspotSvg(props: HotspotSvgProps) {
   })
 
   return (
-    <>
+    <group
+      onPointerOver={onPointerOver}
+      onPointerOut={onPointerOut}
+      onClick={(e) => {
+        e.stopPropagation()
+        setActive(!active)
+      }}
+    >
       <sprite
         ref={spriteFront}
         position={props.position}
@@ -105,23 +112,11 @@ export default function HotspotSvg(props: HotspotSvgProps) {
       <sprite
         ref={spriteBack}
         position={props.position}
-        onPointerOver={() => {
-          // e.stopPropagation()
-          setHovered(true)
-        }}
-        onPointerOut={() => {
-          // e.stopPropagation()
-          setHovered(false)
-        }}
-        onClick={(e) => {
-          e.stopPropagation()
-          setActive(!active)
-        }}
       >
         <spriteMaterial attach="material" map={map} opacity={0.3} transparent={true} depthTest={false} />
       </sprite>
 
       <Annotation position={props.position} active={active}></Annotation>
-    </>
+    </group>
   )
 }

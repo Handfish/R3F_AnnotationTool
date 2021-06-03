@@ -1,5 +1,5 @@
 import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import Annotation from './components/Annotation'
 import Box from './components/Box'
 import OBJ from './components/OBJ'
@@ -218,11 +218,22 @@ function DrawCurveTool () {
 // }
 
 
+function RaycasterInfo () {
+  const { raycaster, camera } = useThree();
+  console.log(raycaster, camera);
+
+  return (
+    <></>
+  );
+}
+
+
 export default function App() {
   return (
     <Canvas 
       gl={{ powerPreference: "high-performance", antialias: true }}
     >
+      <RaycasterInfo />
       <BasicCamera />
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />

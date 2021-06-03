@@ -22,3 +22,9 @@ interface AnnotationProps {
 }
 
 type Vertices = Vector3[];
+
+type MouseEventData = {
+  uuid: string;
+  distance: float;
+  point: Vector3;
+}
