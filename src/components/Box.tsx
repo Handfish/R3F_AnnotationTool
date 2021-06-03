@@ -30,7 +30,7 @@ export default function Box(props: MeshProps & HotspotSvgProps) {
   return (
     <group
       ref={group}
-      position={position}
+      position={positionArr}
     >
       <mesh
         {...otherProps}
@@ -51,10 +51,10 @@ export default function Box(props: MeshProps & HotspotSvgProps) {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
-      <Hotspot position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z + 0.5)}></Hotspot>
-      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y - 0.5, positionArr.z - 0.5)} svg={SvgLightbulb} />
-      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z - 0.5)} svg={SvgQuestionCircle} />
-      <HotspotSvg position={new Vector3(Math.abs(positionArr.x) - 0.5, positionArr.y + 0.5, positionArr.z + 0.5)} svg={SvgEye} />
+      <Hotspot position={new Vector3(-0.5, -0.5, 0.5)}></Hotspot>
+      <HotspotSvg position={new Vector3(-0.5, -0.5, -0.5)} svg={SvgLightbulb} />
+      <HotspotSvg position={new Vector3(-0.5, 0.5, -0.5)} svg={SvgQuestionCircle} />
+      <HotspotSvg position={new Vector3(-0.5, 0.5, 0.5)} svg={SvgEye} />
     </group>
   )
 }

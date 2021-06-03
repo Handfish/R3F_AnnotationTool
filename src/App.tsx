@@ -153,7 +153,6 @@ function DrawCurveTool () {
 
   // const curvesRef = useCallbackRef<any>([], () => setCurves([...curves, vertices]));
 
-
   useEffect(() => {
     verticesRef.current = vertices;
     curvesRef.current = curves;
@@ -168,11 +167,6 @@ function DrawCurveTool () {
       setVertices([...verticesRef.current, v]);
     else if(vertices.length <= 0)
       setVertices([...verticesRef.current, v]);
-
-    // if(verticesRef?.current.length > 0 && !verticesRef.current[verticesRef.current.length-1].equals(v))
-      // setVertices([...verticesRef.current, v]);
-    // else if(verticesRef?.current.length <= 0)
-      // setVertices([...verticesRef.current, v]);
   };
 
   const onEnd = () => { 
@@ -193,8 +187,10 @@ function DrawCurveTool () {
     (<Curve key={i} vertices={curves[i]} hoverable={true} />)
   );
 
-  let bindDrag = useDrag(onDrag, onEnd);
+  const bindDrag = useDrag(onDrag, onEnd);
 
+
+  //TODO - Separate props so objUrl isnt reloaded
   return (
     < >
       <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
