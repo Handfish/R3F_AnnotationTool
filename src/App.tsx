@@ -22,7 +22,7 @@ import './App.css';
 
 
 
-function Curve(props: { vertices: Vertices }) {
+function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
   const [hovered, setHovered] = useState(false);
   const lineMaterialRef = useRef<any>(null!);
@@ -117,14 +117,18 @@ function Curve(props: { vertices: Vertices }) {
       <mesh 
         position={position.toArray()}
         onPointerOver={() => {
-          lineMaterialRef.current.vertexColors = false;
-          lineMaterialRef.current.needsUpdate = true;
-          setHovered(true)
+          if(props.hoverable) {
+            lineMaterialRef.current.vertexColors = false;
+            lineMaterialRef.current.needsUpdate = true;
+            setHovered(true)
+          }
         }}
         onPointerOut={() => {
-          lineMaterialRef.current.vertexColors = true;
-          lineMaterialRef.current.needsUpdate = true;
-          setHovered(false)
+          if(props.hoverable) {
+            lineMaterialRef.current.vertexColors = true;
+            lineMaterialRef.current.needsUpdate = true;
+            setHovered(false)
+          }
         }}
         onClick={(e) => {
           e.stopPropagation()
@@ -189,7 +193,7 @@ function DrawCurveTool () {
 
 
   const curvesMap = curves.map((curve, i) =>
-    (<Curve key={i} vertices={curves[i]}  />)
+    (<Curve key={i} vertices={curves[i]} hoverable={true} />)
   );
 
   let bindDrag = useDrag(onDrag, onEnd);
@@ -197,7 +201,7 @@ function DrawCurveTool () {
   return (
     < >
       <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
-      <Curve vertices={vertices}/>
+      <Curve vertices={vertices} hoverable={false}/>
       {curvesMap}
     </>
   );
