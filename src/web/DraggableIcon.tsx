@@ -11,7 +11,7 @@ export default function DraggableIcon() {
         </div>
         
 
-        <Eye style={{float: "left"}} className={'pointer'} width="72px" height="72px"/>
+        {/* <Eye style={{float: "left"}} className={'pointer'} width="72px" height="72px"/> */}
 
       </div>
     </>

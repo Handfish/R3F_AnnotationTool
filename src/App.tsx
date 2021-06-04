@@ -26,6 +26,8 @@ import './App.css';
 
 
 import DraggableIcon from './web/DraggableIcon';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Eye from './icons-react/Eye';
 
 function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
@@ -83,11 +85,11 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
     const bbox = new Box3().setFromObject(line);
 
     if(bbox.min.x !== Infinity && 
-       bbox.min.y !== Infinity &&
-       bbox.min.z !== Infinity &&
-       bbox.max.x !== Infinity &&
-       bbox.max.y !== Infinity &&
-       bbox.max.z !== Infinity 
+      bbox.min.y !== Infinity &&
+      bbox.min.z !== Infinity &&
+      bbox.max.x !== Infinity &&
+      bbox.max.y !== Infinity &&
+      bbox.max.z !== Infinity 
     ) {
       position = new Vector3()
       bbox.getCenter(position);
@@ -113,7 +115,7 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
       <primitive
         object={line} 
       ></primitive>
-      
+
       <mesh 
         position={position.toArray()}
         onPointerOver={() => {
@@ -134,7 +136,7 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
           e.stopPropagation()
           setActive(!active)
         }}
-        >
+      >
         <boxGeometry args={geometryVector.toArray()} />
         <meshStandardMaterial color={'green'} visible={false} />
       </mesh>
@@ -173,7 +175,7 @@ function DrawCurveTool () {
   };
 
   const onEnd = () => { 
-      setCurves([...(curvesRef.current.filter((array: Vertices) => array.length > 0)), verticesRef.current]);
+    setCurves([...(curvesRef.current.filter((array: Vertices) => array.length > 0)), verticesRef.current]);
   };
 
   useEffect(() => {
@@ -205,7 +207,7 @@ function DrawCurveTool () {
 
 // function CurvesArray() {
 //   const curves = useCurvesStore(state => state.curves);
-  
+
 //   const curvesMap = curves.map((curve, i) =>
 //     (<Curve key={i} vertices={curves[i]}  />)
 //   );
@@ -228,37 +230,84 @@ function RaycasterInfo () {
 }
 
 
+const getItemStyle = (draggableStyle: any, isDragging: any) => ({
+    userSelect: 'none',
+    background: isDragging ? 'lightgreen' : 'grey',
+    ...draggableStyle
+});
+
 export default function App() {
+  const onDragEnd = (result: any) => {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    console.log(result);
+  }
+
   return (
     <>
-      <div className={'app-container'}>
-        <Canvas 
-          gl={{ powerPreference: "high-performance", antialias: true }}
-        >
-          <RaycasterInfo />
-          <BasicCamera />
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-          <pointLight position={[-10, -10, -10]} />
-          
-          {/* <HilbertCurve /> */}
-          
-          <Suspense fallback={null}>
-            <Box position={[-1, 0, 0]} />
-            <Box position={[1, 0, 0]} />
-          
-            {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
-            {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
+      <DragDropContext onDragEnd={onDragEnd}>
 
-            {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-            <DrawCurveTool />
-            {/* <CurvesArray /> */}
-            <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
-          </Suspense>
+        <Droppable droppableId="droppable">
+          {(provided, snapshot) => (
+            <>
+              <div className={'app-container'}>
 
-        </Canvas>
-      </div>
-      <DraggableIcon />
+                <Canvas 
+                  gl={{ powerPreference: "high-performance", antialias: true }}
+                >
+                  <RaycasterInfo />
+                  <BasicCamera />
+                  <ambientLight intensity={0.5} />
+                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                  <pointLight position={[-10, -10, -10]} />
+
+                  {/* <HilbertCurve /> */}
+
+                  <Suspense fallback={null}>
+                    <Box position={[-1, 0, 0]} />
+                    <Box position={[1, 0, 0]} />
+
+                    {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
+                    {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
+
+                    {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
+                    <DrawCurveTool />
+                    {/* <CurvesArray /> */}
+                    <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
+                  </Suspense>
+
+                </Canvas>
+              </div>
+
+              <Draggable key={'1231'} draggableId={'1231'} index={0}>
+                {(provided, snapshot) => {
+                    console.log(provided, snapshot);
+                    return (
+                        <div>
+                          <div
+                              ref={provided.innerRef}
+                              style={getItemStyle(
+                                  provided.draggableProps.style,
+                                  snapshot.isDragging
+                              )}
+                              {...provided.dragHandleProps}
+                          >
+                            <Eye style={{float: "left"}} className={'pointer'} width="72px" height="72px"/>
+                          </div>
+                        </div>
+                    )
+                  }
+                }
+              </Draggable>
+              <DraggableIcon />
+              {provided.placeholder}
+            </>
+          )}
+        </Droppable>
+      </DragDropContext>
     </>
   )
 }
