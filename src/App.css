@@ -48,6 +48,10 @@
   border-radius: 5px;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .fs-container {
   width: 100%;
   height: 100%;
