@@ -85,10 +85,10 @@ export default function HotspotSvg(props: HotspotSvgProps) {
 
   useFrame(({ camera }) => {
     const scaleVector = new Vector3();
-    const scaleFactor = 20;
     // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
     const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-    const scale = subVector.length() / scaleFactor;
+    const scale = 60/window.innerHeight * subVector.length(); 
+
     spriteFront.current.scale.set(scale, scale, 1);
     spriteBack.current.scale.set(scale, scale, 1);
   })
