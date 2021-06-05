@@ -237,6 +237,8 @@ const getItemStyle = (draggableStyle: any, isDragging: any) => ({
 });
 
 export default function App() {
+  const id = 'key';
+
   const onDragEnd = (result: any) => {
     // dropped outside the list
     if (!result.destination) {
@@ -253,7 +255,9 @@ export default function App() {
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
             <>
-              <div className={'app-container'}>
+              <div className={'app-container'}
+               ref={provided.innerRef}
+              >
 
                 <Canvas 
                   gl={{ powerPreference: "high-performance", antialias: true }}
@@ -282,17 +286,14 @@ export default function App() {
                 </Canvas>
               </div>
 
-              <Draggable key={'1231'} draggableId={'1231'} index={0}>
+              <Draggable key={id} draggableId={id} index={0}>
                 {(provided, snapshot) => {
                     console.log(provided, snapshot);
                     return (
                         <div>
                           <div
                               ref={provided.innerRef}
-                              style={getItemStyle(
-                                  provided.draggableProps.style,
-                                  snapshot.isDragging
-                              )}
+                              {...provided.draggableProps}
                               {...provided.dragHandleProps}
                           >
                             <Eye style={{float: "left"}} className={'pointer'} width="72px" height="72px"/>
@@ -302,7 +303,7 @@ export default function App() {
                   }
                 }
               </Draggable>
-              <DraggableIcon />
+              {/* <DraggableIcon /> */}
               {provided.placeholder}
             </>
           )}
