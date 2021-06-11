@@ -36,7 +36,7 @@ export default function Box(props: MeshProps & HotspotSvgProps) {
         {...otherProps}
         ref={mesh}
         scale={active ? 1.5 : 1}
-        onClick={() => {
+        onPointerDown={() => {
           // e.stopPropagation()
           setActive(!active)
         }}

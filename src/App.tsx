@@ -1,10 +1,10 @@
 import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import Annotation from './components/Annotation'
+import HotspotSvg from './components/HotspotSvg';
 import Box from './components/Box'
 import OBJ from './components/OBJ'
 // import Hotspot from './components/Hotspot'
-
 // import HilbertCurve from './components/HilbertCurve'
 
 import { useDrag } from './hooks/useDrag';
@@ -17,17 +17,29 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 
 import { useMouseEvents } from './hooks/useMouseEvents';
 import { v4 as uuidv4 } from 'uuid';
-// import { useCurvesStore } from './stores/stores';
 
 import type { Vertices } from './@types/custom-typings';
 
 import './App.css';
+// import Eye from './icons-react/Eye';
+import SvgEye from './icons/Eye';
 
 
+// import { TouchBackend } from 'react-dnd-touch-backend';
+// import { DndProvider } from 'react-dnd-multi-backend';
+//
+// import { DndProvider } from 'react-dnd';
+import { useDrag as useDndDrag, useDrop as useDndDrop } from 'react-dnd';
+import { DndProvider } from 'react-dnd-multi-backend';
+import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 
-import DraggableIcon from './web/DraggableIcon';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import Eye from './icons-react/Eye';
+import { Box as Test } from './web/DraggableIconDnd';
+import { ItemTypes } from './web/ItemTypes';
+
+import { useAnnotationsStore, useDragHoverStore } from './stores/stores';
+// import type { PendingAnnotation } from './stores/stores';
+
+
 
 function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
@@ -132,7 +144,7 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
             lineMaterialRef.current.needsUpdate = true;
           }
         }}
-        onClick={(e) => {
+        onPointerDown={(e) => {
           e.stopPropagation()
           setActive(!active)
         }}
@@ -220,95 +232,153 @@ function DrawCurveTool () {
 // }
 
 
-function RaycasterInfo () {
-  const { raycaster, camera } = useThree();
-  console.log(raycaster, camera);
+function AnnotationBuilder () {
+  const { scene, raycaster, camera } = useThree();
+  const pendingAnnotation  = useAnnotationsStore(state => state.pendingAnnotation);
+  //const setPendingAnnotation = useAnnotationsStore(state => state.setPendingAnnotation);
+  const annotations = useAnnotationsStore(state => state.annotations);
+  const setAnnotations = useAnnotationsStore(state => state.setAnnotations);
+
+  const CONTAINING_DIV_WIDTH = 1024;
+  const CONTAINING_DIV_HEIGHT = 576;
+
+  useEffect(() => {
+    if(pendingAnnotation !== null) {
+      const mouseVector = new Vector3();
+      mouseVector.x = ( pendingAnnotation!.vec2.x / CONTAINING_DIV_WIDTH ) * 2 - 1;
+      mouseVector.y = - ( pendingAnnotation!.vec2.y / CONTAINING_DIV_HEIGHT ) * 2 + 1;
+      mouseVector.z = 1;
+
+      // console.log(raycaster);
+      // console.log(mouseVector);
+      // console.log(camera);
+
+      raycaster.setFromCamera( mouseVector, camera );
+
+      const intersections = raycaster.intersectObjects( scene.children, true );
+      const closestIntersection = intersections.reduce((prev, curr) => {
+        return prev.distance < curr.distance ? prev : curr;
+      });
+
+      // console.log(closestIntersection);
+
+      const newAnnotation = {
+        //position: closestIntersection.point,
+        position: closestIntersection.point.add(closestIntersection.face!.normal),
+        icon: SvgEye
+      };
+      
+      setAnnotations([...annotations, newAnnotation]);
+    } 
+  }, [pendingAnnotation]);
+
+  // console.log(scene, raycaster, camera);
 
   return (
     <></>
   );
 }
 
+function DndedAnnotations () {
+  const annotations = useAnnotationsStore(state => state.annotations);
 
-const getItemStyle = (draggableStyle: any, isDragging: any) => ({
-    userSelect: 'none',
-    background: isDragging ? 'lightgreen' : 'grey',
-    ...draggableStyle
-});
+  const annotationsMap = annotations.map((annotation, i) =>
+    (<HotspotSvg key={i} position={annotation.position} svg={annotation.icon} />)
+  );
 
-export default function App() {
-  const id = 'key';
+  //TODO - Separate props so objUrl isnt reloaded
+  return (
+    < >
+      {annotationsMap}
+    </>
+  );
+}
 
-  const onDragEnd = (result: any) => {
-    // dropped outside the list
-    if (!result.destination) {
-      return;
+function App() {
+  const setPendingAnnotation = useAnnotationsStore(state => state.setPendingAnnotation);
+  let point: { x: number, y: number } = { x: 0, y: 0 };
+
+	const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
+		accept: ItemTypes.BOX,
+		drop: () => {
+      console.log(point);
+
+      setPendingAnnotation({
+        vec2: new Vector2(point.x, point.y),
+        icon: SvgEye
+      })
+      return { name: 'Canvas' };
     }
+    ,
+    collect: (monitor: any) => ({
+			isOver: monitor.isOver(),
+			canDrop: monitor.canDrop(),
+		}),
+    hover: (item, monitor) => {
+      point = monitor.getClientOffset()!;
+    }
+	}))
 
-    console.log(result);
-  }
+	// const isActive = canDrop && isOver;
+
+	// let backgroundColor = '#222';
+	// if (isActive) {
+	// 	backgroundColor = 'darkgreen';
+	// } else if (canDrop) {
+	// 	backgroundColor = 'darkkhaki';
+	// }
+
+  // const [hovered, set] = useState(null)
+  // useEffect(() => {
+  //   const cursor = `<svg width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0)"><path fill="rgba(255, 255, 255, 0.5)" d="M29.5 54C43.031 54 54 43.031 54 29.5S43.031 5 29.5 5 5 15.969 5 29.5 15.969 54 29.5 54z" stroke="#000"/><g filter="url(#filter0_d)"><path d="M29.5 47C39.165 47 47 39.165 47 29.5S39.165 12 29.5 12 12 19.835 12 29.5 19.835 47 29.5 47z" fill="${backgroundColor}"/></g><path d="M2 2l11 2.947L4.947 13 2 2z" fill="#000"/><text fill="#000" style="white-space:pre" font-family="Inter var, sans-serif" font-size="10" letter-spacing="-.01em"><tspan x="35" y="63">${hovered}</tspan></text></g><defs><clipPath id="clip0"><path fill="#fff" d="M0 0h64v64H0z"/></clipPath><filter id="filter0_d" x="6" y="8" width="47" height="47" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/><feOffset dy="2"/><feGaussianBlur stdDeviation="3"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/><feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/><feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/></filter></defs></svg>`
+  //   const auto = `<svg width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255, 255, 255, 0.5)" d="M29.5 54C43.031 54 54 43.031 54 29.5S43.031 5 29.5 5 5 15.969 5 29.5 15.969 54 29.5 54z" stroke="#000"/><path d="M2 2l11 2.947L4.947 13 2 2z" fill="#000"/></svg>`
+  //   document.body.style.cursor = `url('data:image/svg+xml;base64,${btoa(hovered ? cursor : auto)}'), auto`
+  // }, [hovered])
 
   return (
     <>
-      <DragDropContext onDragEnd={onDragEnd}>
+        <div ref={drop} className={'app-container'}
+        >
 
-        <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
-            <>
-              <div className={'app-container'}
-               ref={provided.innerRef}
-              >
+          <Canvas 
+            gl={{ powerPreference: "high-performance", antialias: true }}
+          >
+            <AnnotationBuilder />
+            <DndedAnnotations />
+            <BasicCamera />
+            <ambientLight intensity={0.5} />
+            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+            <pointLight position={[-10, -10, -10]} />
 
-                <Canvas 
-                  gl={{ powerPreference: "high-performance", antialias: true }}
-                >
-                  <RaycasterInfo />
-                  <BasicCamera />
-                  <ambientLight intensity={0.5} />
-                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                  <pointLight position={[-10, -10, -10]} />
+            {/* <HilbertCurve /> */}
 
-                  {/* <HilbertCurve /> */}
+            <Suspense fallback={null}>
+              <Box position={[-1, 0, 0]} />
+              <Box position={[1, 0, 0]} />
 
-                  <Suspense fallback={null}>
-                    <Box position={[-1, 0, 0]} />
-                    <Box position={[1, 0, 0]} />
+              {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
+              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
 
-                    {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
-                    {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
+              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
+              <DrawCurveTool />
+              {/* <CurvesArray /> */}
+              <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
+            </Suspense>
 
-                    {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-                    <DrawCurveTool />
-                    {/* <CurvesArray /> */}
-                    <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
-                  </Suspense>
+          </Canvas>
+        </div>
 
-                </Canvas>
-              </div>
+        {/* <Eye style={{float: "left"}} className={'pointer'} width="60px" height="60px"/> */}
+        <Test name={"test"}/>
 
-              <Draggable key={id} draggableId={id} index={0}>
-                {(provided, snapshot) => {
-                    console.log(provided, snapshot);
-                    return (
-                        <div>
-                          <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                          >
-                            <Eye style={{float: "left"}} className={'pointer'} width="72px" height="72px"/>
-                          </div>
-                        </div>
-                    )
-                  }
-                }
-              </Draggable>
-              {/* <DraggableIcon /> */}
-              {provided.placeholder}
-            </>
-          )}
-        </Droppable>
-      </DragDropContext>
     </>
   )
+}
+
+export default function DropAndDropApp() {
+  return (
+    <DndProvider options={HTML5toTouch}>
+      <App />
+    </DndProvider>
+  );
 }

@@ -82,10 +82,6 @@ export default function OBJ(props: MeshProps & OBJProps) {
         {...meshProps}
         geometry={geometry}
         scale={active ? 1.5 : 1}
-        onClick={() => {
-          // e.stopPropagation()
-          // setActive(!active)
-        }}
         onPointerOver={() => {
           // e.stopPropagation()
           setHover(true)

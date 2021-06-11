@@ -1,5 +1,5 @@
 import create, { SetState, GetState } from 'zustand';
-import { Vector3 } from 'three';
+import { Vector2, Vector3 } from 'three';
 import type { MouseEventData, Vertices } from '../@types/custom-typings';
 // import type { PartialState } from zustand;
 
@@ -45,7 +45,7 @@ export const useOrbitSpeedStore = create<OrbitSpeedStore>((set: SetState<OrbitSp
 
 type CurvesStore = {
     curves: Vertices[];
-    setCurves: (input: Vertices) => void;
+    setCurves: (input: Vertices[]) => void;
 };
 
 
@@ -57,6 +57,10 @@ export const useCurvesStore = create<CurvesStore>((set: SetState<CurvesStore>, g
       });
     }
 }));
+
+
+
+
 
 
 
@@ -100,4 +104,70 @@ export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOver
         intersections: rest,
       });
     },
+}));
+
+
+
+
+type AnnotationProps = {
+  position: Vector3,
+  icon: {
+    viewBox: string,
+    paths: string[]
+  }
+}
+
+type PendingAnnotation = {
+  icon: {
+    viewBox: string,
+    paths: string[]
+  }
+  vec2: Vector2
+}
+
+type AnnotationsStore = {
+  pendingAnnotation?: PendingAnnotation | null,
+  annotations: AnnotationProps[],
+  setAnnotations: (input: AnnotationProps[]) => void;
+  setPendingAnnotation: (input: PendingAnnotation) => void;
+}
+
+export const useAnnotationsStore = create<AnnotationsStore>((set: SetState<AnnotationsStore>, get: GetState<AnnotationsStore>) => ({
+    pendingAnnotation: null,
+    annotations: [],
+    setAnnotations: (input: AnnotationProps[]): void =>  {
+      set({ 
+        annotations: input,
+      });
+    },
+    setPendingAnnotation: (input: PendingAnnotation): void =>  {
+      set({ 
+        pendingAnnotation: input,
+      });
+    }
+}));
+
+
+
+
+
+
+/*
+ * Deprecated
+ *
+ */
+
+type DragHoverStore = {
+    point: Vector2;
+    setPoint: (input: Vector2) => void;
+};
+
+
+export const useDragHoverStore = create<DragHoverStore>((set: SetState<DragHoverStore>, get: GetState<DragHoverStore>) => ({
+    point: new Vector2(),
+    setPoint: (input: Vector2): void =>  {
+      set({ 
+        point: input,
+      });
+    }
 }));

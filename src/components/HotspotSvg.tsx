@@ -84,10 +84,13 @@ export default function HotspotSvg(props: HotspotSvgProps) {
   }, [props, active]);
 
   useFrame(({ camera }) => {
+    const HEIGHT_WIDTH_PX = 60;
+    const CONTAINING_DIV_HEIGHT = 576;
+
     const scaleVector = new Vector3();
     // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
     const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-    const scale = 60/window.innerHeight * subVector.length(); 
+    const scale = HEIGHT_WIDTH_PX/CONTAINING_DIV_HEIGHT * subVector.length(); 
 
     spriteFront.current.scale.set(scale, scale, 1);
     spriteBack.current.scale.set(scale, scale, 1);
@@ -97,7 +100,7 @@ export default function HotspotSvg(props: HotspotSvgProps) {
     <group
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
-      onClick={(e) => {
+      onPointerDown={(e) => {
         e.stopPropagation()
         setActive(!active)
       }}
