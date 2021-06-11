@@ -36,7 +36,7 @@ import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 import { Box as Test } from './web/DraggableIconDnd';
 import { ItemTypes } from './web/ItemTypes';
 
-import { useAnnotationsStore, useDragHoverStore } from './stores/stores';
+import { useDndHotspotSvgsStore } from './stores/stores';
 // import type { PendingAnnotation } from './stores/stores';
 
 
@@ -232,21 +232,21 @@ function DrawCurveTool () {
 // }
 
 
-function AnnotationBuilder () {
+function DndHotspotSvgBuilder () {
   const { scene, raycaster, camera } = useThree();
-  const pendingAnnotation  = useAnnotationsStore(state => state.pendingAnnotation);
-  //const setPendingAnnotation = useAnnotationsStore(state => state.setPendingAnnotation);
-  const annotations = useAnnotationsStore(state => state.annotations);
-  const setAnnotations = useAnnotationsStore(state => state.setAnnotations);
+  const pendingDndHotspotSvg  = useDndHotspotSvgsStore(state => state.pendingDndHotspotSvg);
+  //const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
+  const hotspotSvgs = useDndHotspotSvgsStore(state => state.hotspotSvgs);
+  const setDndHotspotSvgs = useDndHotspotSvgsStore(state => state.setDndHotspotSvgs);
 
   const CONTAINING_DIV_WIDTH = 1024;
   const CONTAINING_DIV_HEIGHT = 576;
 
   useEffect(() => {
-    if(pendingAnnotation !== null) {
+    if(pendingDndHotspotSvg !== null) {
       const mouseVector = new Vector3();
-      mouseVector.x = ( pendingAnnotation!.vec2.x / CONTAINING_DIV_WIDTH ) * 2 - 1;
-      mouseVector.y = - ( pendingAnnotation!.vec2.y / CONTAINING_DIV_HEIGHT ) * 2 + 1;
+      mouseVector.x = ( pendingDndHotspotSvg!.vec2.x / CONTAINING_DIV_WIDTH ) * 2 - 1;
+      mouseVector.y = - ( pendingDndHotspotSvg!.vec2.y / CONTAINING_DIV_HEIGHT ) * 2 + 1;
       mouseVector.z = 1;
 
       // console.log(raycaster);
@@ -256,21 +256,24 @@ function AnnotationBuilder () {
       raycaster.setFromCamera( mouseVector, camera );
 
       const intersections = raycaster.intersectObjects( scene.children, true );
-      const closestIntersection = intersections.reduce((prev, curr) => {
-        return prev.distance < curr.distance ? prev : curr;
-      });
 
-      // console.log(closestIntersection);
+      if(intersections.length > 0) {
+        const closestIntersection = intersections.reduce((prev, curr) => {
+          return prev.distance < curr.distance ? prev : curr;
+        });
 
-      const newAnnotation = {
-        //position: closestIntersection.point,
-        position: closestIntersection.point.add(closestIntersection.face!.normal),
-        icon: SvgEye
-      };
-      
-      setAnnotations([...annotations, newAnnotation]);
+        // console.log(closestIntersection);
+
+        const newDndHotspotSvg = {
+          //position: closestIntersection.point,
+          position: closestIntersection.point.add(closestIntersection.face!.normal),
+          icon: SvgEye
+        };
+        
+        setDndHotspotSvgs([...hotspotSvgs, newDndHotspotSvg]);
+      }
     } 
-  }, [pendingAnnotation]);
+  }, [pendingDndHotspotSvg]);
 
   // console.log(scene, raycaster, camera);
 
@@ -279,23 +282,23 @@ function AnnotationBuilder () {
   );
 }
 
-function DndedAnnotations () {
-  const annotations = useAnnotationsStore(state => state.annotations);
+function DndHotspotSvgs () {
+  const hotspotSvgs = useDndHotspotSvgsStore(state => state.hotspotSvgs);
 
-  const annotationsMap = annotations.map((annotation, i) =>
-    (<HotspotSvg key={i} position={annotation.position} svg={annotation.icon} />)
+  const hotspotSvgsMap = hotspotSvgs.map((hotspotSvg, i) =>
+    (<HotspotSvg key={i} position={hotspotSvg.position} svg={hotspotSvg.icon} />)
   );
 
   //TODO - Separate props so objUrl isnt reloaded
   return (
     < >
-      {annotationsMap}
+      {hotspotSvgsMap}
     </>
   );
 }
 
 function App() {
-  const setPendingAnnotation = useAnnotationsStore(state => state.setPendingAnnotation);
+  const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   let point: { x: number, y: number } = { x: 0, y: 0 };
 
 	const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
@@ -303,7 +306,7 @@ function App() {
 		drop: () => {
       console.log(point);
 
-      setPendingAnnotation({
+      setPendingDndHotspotSvg({
         vec2: new Vector2(point.x, point.y),
         icon: SvgEye
       })
@@ -343,8 +346,8 @@ function App() {
           <Canvas 
             gl={{ powerPreference: "high-performance", antialias: true }}
           >
-            <AnnotationBuilder />
-            <DndedAnnotations />
+            <DndHotspotSvgBuilder />
+            <DndHotspotSvgs />
             <BasicCamera />
             <ambientLight intensity={0.5} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />

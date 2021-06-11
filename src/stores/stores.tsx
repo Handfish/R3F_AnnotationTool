@@ -109,7 +109,7 @@ export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOver
 
 
 
-type AnnotationProps = {
+type DndHotspotSvgProps = {
   position: Vector3,
   icon: {
     viewBox: string,
@@ -117,7 +117,7 @@ type AnnotationProps = {
   }
 }
 
-type PendingAnnotation = {
+type PendingDndHotspotSvg = {
   icon: {
     viewBox: string,
     paths: string[]
@@ -125,49 +125,24 @@ type PendingAnnotation = {
   vec2: Vector2
 }
 
-type AnnotationsStore = {
-  pendingAnnotation?: PendingAnnotation | null,
-  annotations: AnnotationProps[],
-  setAnnotations: (input: AnnotationProps[]) => void;
-  setPendingAnnotation: (input: PendingAnnotation) => void;
+type DndHotspotSvgsStore = {
+  pendingDndHotspotSvg?: PendingDndHotspotSvg | null,
+  hotspotSvgs: DndHotspotSvgProps[],
+  setDndHotspotSvgs: (input: DndHotspotSvgProps[]) => void;
+  setPendingDndHotspotSvg: (input: PendingDndHotspotSvg) => void;
 }
 
-export const useAnnotationsStore = create<AnnotationsStore>((set: SetState<AnnotationsStore>, get: GetState<AnnotationsStore>) => ({
-    pendingAnnotation: null,
-    annotations: [],
-    setAnnotations: (input: AnnotationProps[]): void =>  {
+export const useDndHotspotSvgsStore = create<DndHotspotSvgsStore>((set: SetState<DndHotspotSvgsStore>, get: GetState<DndHotspotSvgsStore>) => ({
+    pendingDndHotspotSvg: null,
+    hotspotSvgs: [],
+    setDndHotspotSvgs: (input: DndHotspotSvgProps[]): void =>  {
       set({ 
-        annotations: input,
+        hotspotSvgs: input,
       });
     },
-    setPendingAnnotation: (input: PendingAnnotation): void =>  {
+    setPendingDndHotspotSvg: (input: PendingDndHotspotSvg): void =>  {
       set({ 
-        pendingAnnotation: input,
-      });
-    }
-}));
-
-
-
-
-
-
-/*
- * Deprecated
- *
- */
-
-type DragHoverStore = {
-    point: Vector2;
-    setPoint: (input: Vector2) => void;
-};
-
-
-export const useDragHoverStore = create<DragHoverStore>((set: SetState<DragHoverStore>, get: GetState<DragHoverStore>) => ({
-    point: new Vector2(),
-    setPoint: (input: Vector2): void =>  {
-      set({ 
-        point: input,
+        pendingDndHotspotSvg: input,
       });
     }
 }));
