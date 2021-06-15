@@ -1,31 +1,33 @@
 import { CSSProperties, FC } from 'react'
 import { useDrag } from 'react-dnd'
-import { ItemTypes } from './ItemTypes'
-import Eye from '../icons-react/Eye';
+import { ItemTypes } from './ItemTypes';
+import type { IconData } from '../@types/custom-typings';
 
 const style: CSSProperties = {
 	cursor: 'move',
 	float: 'left',
 }
 
-export interface BoxProps {
-	name: string
+export interface DndProps {
+  children?: React.ReactNode;
+  icon: IconData,
+	name: string,
 }
 
-interface DropResult {
-	name: string
-}
+// interface DropResult {
+// 	name: string
+// }
 
-export const Box: FC<BoxProps> = function Box({ name }) {
+export const DndIcon: FC<DndProps> = function Box({ children, icon, name }) {
 	const [{ isDragging }, drag] = useDrag(() => ({
 		type: ItemTypes.BOX,
-		item: { name },
-		end: (item, monitor) => {
+		item: { name, icon },
+		// end: (item, monitor) => {
 			// const dropResult = monitor.getDropResult<DropResult>()
 			// if (item && dropResult) {
 			// 	alert(`You dropped ${item.name} into ${dropResult.name}!`)
 			// }
-		},
+		// },
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 			handlerId: monitor.getHandlerId(),
@@ -37,9 +39,9 @@ export const Box: FC<BoxProps> = function Box({ name }) {
 		<div
 			ref={drag}
 			style={{ ...style, opacity }}
-			data-testid={`box-${name}`}
+			data-testid={`Dnd${name}`}
 		>
-      <Eye width="60px" height="60px"/>
+      {children}
 		</div>
 	)
 }

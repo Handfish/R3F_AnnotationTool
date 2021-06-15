@@ -1,6 +1,7 @@
 import create, { SetState, GetState } from 'zustand';
 import { Vector2, Vector3 } from 'three';
-import type { MouseEventData, Vertices } from '../@types/custom-typings';
+import type { IconData, MouseEventData, Vertices } from '../@types/custom-typings';
+
 // import type { PartialState } from zustand;
 
 type Vector3Store = {
@@ -108,20 +109,19 @@ export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOver
 
 
 
+// type IconData = {
+//   viewBox: string,
+//   paths: string[]
+// }
+
 
 type DndHotspotSvgProps = {
   position: Vector3,
-  icon: {
-    viewBox: string,
-    paths: string[]
-  }
+  icon: IconData
 }
 
 type PendingDndHotspotSvg = {
-  icon: {
-    viewBox: string,
-    paths: string[]
-  }
+  icon: IconData
   vec2: Vector2
 }
 

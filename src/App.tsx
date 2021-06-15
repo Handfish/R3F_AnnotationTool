@@ -1,5 +1,5 @@
 import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import Annotation from './components/Annotation'
 import HotspotSvg from './components/HotspotSvg';
 import Box from './components/Box'
@@ -18,22 +18,29 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { useMouseEvents } from './hooks/useMouseEvents';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { Vertices } from './@types/custom-typings';
+import type { DndIconItem, Vertices } from './@types/custom-typings';
 
 import './App.css';
-// import Eye from './icons-react/Eye';
+
+import Eye from './icons-react/Eye';
 import SvgEye from './icons/Eye';
+
+import Lightbulb from './icons-react/Lightbulb';
+import SvgLightbulb from './icons/Lightbulb';
+
+import QuestionCircle from './icons-react/QuestionCircle';
+import SvgQuestionCircle from './icons/QuestionCircle';
 
 
 // import { TouchBackend } from 'react-dnd-touch-backend';
 // import { DndProvider } from 'react-dnd-multi-backend';
-//
+
 // import { DndProvider } from 'react-dnd';
-import { useDrag as useDndDrag, useDrop as useDndDrop } from 'react-dnd';
+import { /*useDrag as useDndDrag,*/ useDrop as useDndDrop } from 'react-dnd';
 import { DndProvider } from 'react-dnd-multi-backend';
 import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 
-import { Box as Test } from './web/DraggableIconDnd';
+import { DndIcon } from './web/DraggableIconDnd';
 import { ItemTypes } from './web/ItemTypes';
 
 import { useDndHotspotSvgsStore } from './stores/stores';
@@ -267,7 +274,7 @@ function DndHotspotSvgBuilder () {
         const newDndHotspotSvg = {
           //position: closestIntersection.point,
           position: closestIntersection.point.add(closestIntersection.face!.normal),
-          icon: SvgEye
+          icon: pendingDndHotspotSvg!.icon
         };
         
         setDndHotspotSvgs([...hotspotSvgs, newDndHotspotSvg]);
@@ -303,12 +310,12 @@ function App() {
 
 	const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
 		accept: ItemTypes.BOX,
-		drop: () => {
+    drop: (item: DndIconItem) => {
       console.log(point);
 
       setPendingDndHotspotSvg({
         vec2: new Vector2(point.x, point.y),
-        icon: SvgEye
+        icon: item.icon
       })
       return { name: 'Canvas' };
     }
@@ -371,8 +378,17 @@ function App() {
           </Canvas>
         </div>
 
-        {/* <Eye style={{float: "left"}} className={'pointer'} width="60px" height="60px"/> */}
-        <Test name={"test"}/>
+        <DndIcon name={"Eye"} icon={SvgEye}>
+          <Eye width="60px" height="60px"/>
+        </DndIcon>
+
+        <DndIcon name={"Lightbulb"} icon={SvgLightbulb}>
+          <Lightbulb width="60px" height="60px"/>
+        </DndIcon>
+
+        <DndIcon name={"QuestionCircle"} icon={SvgQuestionCircle}>
+          <QuestionCircle width="60px" height="60px"/>
+        </DndIcon>
 
     </>
   )

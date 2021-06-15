@@ -29,3 +29,13 @@ type MouseEventData = {
   point: Vector3;
 }
 
+
+type IconData = {
+  viewBox: string,
+  paths: string[]
+}
+
+type DndIconItem = {
+  icon: IconData,
+	name: string,
+}
