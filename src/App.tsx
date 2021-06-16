@@ -2,7 +2,7 @@ import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import Annotation from './components/Annotation'
 import HotspotSvg from './components/HotspotSvg';
-import Box from './components/Box'
+// import Box from './components/Box'
 import OBJ from './components/OBJ'
 // import Hotspot from './components/Hotspot'
 // import HilbertCurve from './components/HilbertCurve'
@@ -30,6 +30,10 @@ import SvgLightbulb from './icons/Lightbulb';
 
 import QuestionCircle from './icons-react/QuestionCircle';
 import SvgQuestionCircle from './icons/QuestionCircle';
+
+import Hourglass from './icons-react/Hourglass';
+import SvgHourglass from './icons/Hourglass';
+
 
 
 // import { TouchBackend } from 'react-dnd-touch-backend';
@@ -282,8 +286,6 @@ function DndHotspotSvgBuilder () {
     } 
   }, [pendingDndHotspotSvg]);
 
-  // console.log(scene, raycaster, camera);
-
   return (
     <></>
   );
@@ -296,7 +298,6 @@ function DndHotspotSvgs () {
     (<HotspotSvg key={i} position={hotspotSvg.position} svg={hotspotSvg.icon} />)
   );
 
-  //TODO - Separate props so objUrl isnt reloaded
   return (
     < >
       {hotspotSvgsMap}
@@ -349,22 +350,21 @@ function App() {
     <>
         <div ref={drop} className={'app-container'}
         >
-
           <Canvas 
             gl={{ powerPreference: "high-performance", antialias: true }}
           >
             <DndHotspotSvgBuilder />
             <DndHotspotSvgs />
             <BasicCamera />
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={0.8} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
             <pointLight position={[-10, -10, -10]} />
 
             {/* <HilbertCurve /> */}
 
             <Suspense fallback={null}>
-              <Box position={[-1, 0, 0]} />
-              <Box position={[1, 0, 0]} />
+              {/* <Box position={[-1, 0, 0]} /> */}
+              {/* <Box position={[1, 0, 0]} /> */}
 
               {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
               {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
@@ -390,6 +390,9 @@ function App() {
           <QuestionCircle width="60px" height="60px"/>
         </DndIcon>
 
+        <DndIcon name={"Hourglass"} icon={SvgHourglass}>
+          <Hourglass width="60px" height="60px"/>
+        </DndIcon>
     </>
   )
 }

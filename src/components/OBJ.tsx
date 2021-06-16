@@ -61,6 +61,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
       }
       else {
         geometry.translate(-vec.x, -vec.y, -vec.z);
+        geometry.rotateX(3 * Math.PI/2);
         geometry.boundingBox!.getCenter(center);
 
         setHotspotVec(new Vector3(center.x + 30, center.y, center.z));
