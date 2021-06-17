@@ -52,6 +52,9 @@ import { useDndHotspotSvgsStore } from './stores/stores';
 
 
 
+import MySearch from './web/fuse/MySearch';
+
+
 function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
   const lineMaterialRef = useRef<any>(null!);
@@ -393,6 +396,8 @@ function App() {
         <DndIcon name={"Hourglass"} icon={SvgHourglass}>
           <Hourglass width="60px" height="60px"/>
         </DndIcon>
+
+        <MySearch />
     </>
   )
 }
