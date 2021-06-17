@@ -5,7 +5,7 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { Group, Mesh, Vector3 } from 'three';
 import { useVector3Store } from '../stores/stores';
 
-import Hotspot from './Hotspot';
+// import Hotspot from './Hotspot';
 
 import type { MeshProps, OBJProps } from '../@types/custom-typings';
 
@@ -26,7 +26,8 @@ export default function OBJ(props: MeshProps & OBJProps) {
   })
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
-  const [hotspotVec, setHotspotVec] = useState<Vector3>(new Vector3());
+
+  // const [hotspotVec, setHotspotVec] = useState<Vector3>(new Vector3());
 
 
   const group = useRef<Group>(null!);
@@ -64,7 +65,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
         geometry.rotateX(3 * Math.PI/2);
         geometry.boundingBox!.getCenter(center);
 
-        setHotspotVec(new Vector3(center.x + 30, center.y, center.z));
+        // setHotspotVec(new Vector3(center.x + 30, center.y, center.z));
       }
     }
   }, [geometry, initialized, vec]);
@@ -97,7 +98,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
 
       </mesh>
 
-      <Hotspot position={hotspotVec}></Hotspot>
+      {/* <Hotspot position={hotspotVec}></Hotspot> */}
     </group>
   )
 }

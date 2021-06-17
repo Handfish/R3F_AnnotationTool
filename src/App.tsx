@@ -50,6 +50,7 @@ import { ItemTypes } from './web/ItemTypes';
 import { useDndHotspotSvgsStore } from './stores/stores';
 // import type { PendingAnnotation } from './stores/stores';
 
+import { useOBJsStore } from './stores/stores';
 
 
 import MySearch from './web/fuse/MySearch';
@@ -221,15 +222,28 @@ function DrawCurveTool () {
   const bindDrag = useDrag(onDrag, onEnd);
 
 
+
+  // OBJ MAP 
+  const elementIds = useOBJsStore(state => state.elementIds);
+
+  const OBJMap = elementIds.map((elementId, i) =>
+    (<OBJ {...bindDrag} key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${elementId}.obj`}/>)
+  );
+
+
   //TODO - Separate props so objUrl isnt reloaded
   return (
     < >
-      <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/>
+      {/* <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
       <Curve vertices={vertices} hoverable={false}/>
       {curvesMap}
+      {OBJMap }
     </>
   );
 }
+
+
+
 
 // function CurvesArray() {
 //   const curves = useCurvesStore(state => state.curves);
@@ -308,6 +322,21 @@ function DndHotspotSvgs () {
   );
 }
 
+
+// function OBJStoreMap () {
+//   const elementIds = useOBJsStore(state => state.elementIds);
+
+//   const OBJMap = elementIds.map((elementId, i) =>
+//     (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${elementId}.obj`}/>)
+//   );
+
+//   return (
+//     < >
+//       {OBJMap }
+//     </>
+//   );
+// }
+
 function App() {
   const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   let point: { x: number, y: number } = { x: 0, y: 0 };
@@ -375,7 +404,9 @@ function App() {
               {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
               <DrawCurveTool />
               {/* <CurvesArray /> */}
-              <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/>
+
+              {/* <OBJStoreMap /> */}
+              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
             </Suspense>
 
           </Canvas>

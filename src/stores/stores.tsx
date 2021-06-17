@@ -109,10 +109,7 @@ export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOver
 
 
 
-// type IconData = {
-//   viewBox: string,
-//   paths: string[]
-// }
+
 
 
 type DndHotspotSvgProps = {
@@ -146,3 +143,24 @@ export const useDndHotspotSvgsStore = create<DndHotspotSvgsStore>((set: SetState
       });
     }
 }));
+
+
+
+
+
+
+type OBJsStore = {
+  elementIds: string[];
+  setElementIds: (input: string[]) => void;
+};
+
+
+export const useOBJsStore= create<OBJsStore>((set: SetState<OBJsStore>, get: GetState<OBJsStore>) => ({
+  elementIds: [],
+  setElementIds: (input: string[]): void => {
+    set({
+      elementIds: input
+    });
+  }
+}));
+

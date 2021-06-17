@@ -1,6 +1,7 @@
 import FuseHighlight from './FuseHighlight';
 import { useFuse } from './useFuse';
 import { useEffect, useRef, useState } from 'react';
+import { useOBJsStore } from '../../stores/stores';
 
 const compoundOrganNames = async () => {
   const data = await fetch('http://localhost:8000/PartOfCompoundOrganNames')
@@ -18,6 +19,9 @@ const getElementFileIds = async (name: string) => {
 
 
 const MySearch = () => {
+  const elementIds = useOBJsStore(state => state.elementIds);
+  const setElementIds = useOBJsStore(state => state.setElementIds);
+
   const inputEl = useRef<HTMLInputElement>(null);
   const [list, setList] = useState([])
   const { hits, query, onSearch, setQuery } = useFuse(list, {
@@ -29,10 +33,11 @@ const MySearch = () => {
 
 
   const onClickHit = async (item: string) => {
-    const objs = await getElementFileIds(item);
-    console.log(objs);
+    const newElementIds = await getElementFileIds(item);
+    console.log(newElementIds);
     setQuery('');
     inputEl.current!.value = '';
+    setElementIds([...elementIds, ...newElementIds])
   }
 
   useEffect(() => {
