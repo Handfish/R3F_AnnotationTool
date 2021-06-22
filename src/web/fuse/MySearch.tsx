@@ -19,8 +19,8 @@ const getElementFileIds = async (name: string) => {
 
 
 const MySearch = () => {
-  const elementIds = useOBJsStore(state => state.elementIds);
-  const setElementIds = useOBJsStore(state => state.setElementIds);
+  const objProps = useOBJsStore(state => state.objProps);
+  const setObjProps = useOBJsStore(state => state.setObjProps);
 
   const inputEl = useRef<HTMLInputElement>(null);
   const [list, setList] = useState([])
@@ -33,11 +33,11 @@ const MySearch = () => {
 
 
   const onClickHit = async (item: string) => {
-    const newElementIds = await getElementFileIds(item);
-    console.log(newElementIds);
+    const newObjProps = await getElementFileIds(item);
+    console.log(newObjProps);
     setQuery('');
     inputEl.current!.value = '';
-    setElementIds([...elementIds, ...newElementIds])
+    setObjProps([...objProps, ...newObjProps])
   }
 
   useEffect(() => {

@@ -224,10 +224,10 @@ function DrawCurveTool () {
 
 
   // OBJ MAP 
-  const elementIds = useOBJsStore(state => state.elementIds);
+  const elementIds = useOBJsStore(state => state.objProps);
 
-  const OBJMap = elementIds.map((elementId, i) =>
-    (<OBJ {...bindDrag} key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${elementId}.obj`}/>)
+  const OBJMap = elementIds.map((obj, i) =>
+    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} color={obj[1]}/>)
   );
 
 
@@ -237,7 +237,9 @@ function DrawCurveTool () {
       {/* <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
       <Curve vertices={vertices} hoverable={false}/>
       {curvesMap}
-      {OBJMap }
+      <group {...bindDrag} >
+        {OBJMap }
+      </group>
     </>
   );
 }

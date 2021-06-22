@@ -147,19 +147,23 @@ export const useDndHotspotSvgsStore = create<DndHotspotSvgsStore>((set: SetState
 
 
 
+type OBJProps = [
+  elementId: string,
+  color: string
+]
 
 
 type OBJsStore = {
-  elementIds: string[];
-  setElementIds: (input: string[]) => void;
+  objProps: OBJProps[];
+  setObjProps: (input: OBJProps[]) => void;
 };
 
 
 export const useOBJsStore= create<OBJsStore>((set: SetState<OBJsStore>, get: GetState<OBJsStore>) => ({
-  elementIds: [],
-  setElementIds: (input: string[]): void => {
+  objProps: [],
+  setObjProps: (input: OBJProps[]): void => {
     set({
-      elementIds: input
+      objProps: input
     });
   }
 }));
