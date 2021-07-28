@@ -227,7 +227,7 @@ function DrawCurveTool () {
   const elementIds = useOBJsStore(state => state.objProps);
 
   const OBJMap = elementIds.map((obj, i) =>
-    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} color={obj[1]}/>)
+    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]}/>)
   );
 
 

@@ -9,6 +9,7 @@ declare module '@react-three' {
 interface OBJProps {
   objUrl: string;
   mtlUrl?: string;
+  colorProp?: string;
 }
 
 type MeshProps = ReactThreeFiber.Object3DNode<Mesh, typeof Mesh>

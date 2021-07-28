@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useLoader } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
@@ -11,7 +11,9 @@ import type { MeshProps, OBJProps } from '../@types/custom-typings';
 
 
 export default function OBJ(props: MeshProps & OBJProps) {
-  const { objUrl, mtlUrl, ...meshProps } = props;
+  const { objUrl, mtlUrl, colorProp, ...meshProps } = props;
+  const color = useMemo(() => colorProp, [colorProp]);
+
 
   const materials = useLoader(MTLLoader, String(mtlUrl));
   const obj = useLoader(OBJLoader, objUrl, loader => {
@@ -94,7 +96,8 @@ export default function OBJ(props: MeshProps & OBJProps) {
         }}
         >
 
-        <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+        <meshStandardMaterial color={hovered ? 'hotpink' : color ? color : 'orange'} />
+        {/* <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} /> */}
 
       </mesh>
 
