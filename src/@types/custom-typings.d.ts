@@ -9,7 +9,7 @@ declare module '@react-three' {
 /**
 * Importable OBJ files with colors
 */
-interface OBJProps {
+interface OBJInitProps {
   objUrl: string;
   mtlUrl?: string;
   colorProp?: string;

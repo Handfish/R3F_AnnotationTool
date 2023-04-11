@@ -5,12 +5,12 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { Group, Mesh, Vector3 } from 'three';
 import { useGlobalAdjustedOriginStore } from '../stores/stores';
 
-import type { MeshProps, OBJProps } from '../@types/custom-typings';
+import type { MeshProps, OBJInitProps } from '../@types/custom-typings';
 
 /**
 * Renderable OBJ with color props and logic to center camera on their origin
 */
-export default function OBJ(props: MeshProps & OBJProps) {
+export default function OBJ(props: MeshProps & OBJInitProps) {
   const { objUrl, mtlUrl, colorProp, ...meshProps } = props;
   const color = useMemo(() => colorProp, [colorProp]);
 

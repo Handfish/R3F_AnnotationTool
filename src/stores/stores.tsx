@@ -167,7 +167,7 @@ export const useDndHotspotSvgsStore = create<DndHotspotSvgsState>()(
 );
 
 
-type OBJProps = [
+export type OBJProps = [
   elementId: string,
   color: string
 ]
