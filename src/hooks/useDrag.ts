@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useOrbitSpeedStore } from '../stores/stores';
 import { Vector3 } from 'three';
+import { ThreeEvent } from '@react-three/fiber';
 
 // Derived from the following code:
 // https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
-export function useDrag(onDrag: any, onEnd: any) {
+export function useDrag(onDrag: (v: Vector3) => void, onEnd: () => void) {
   const [active, setActive] = useState(false);
   const [point, setPoint] = useState<Vector3>(new Vector3());
   const [originPoint, setOriginPoint] = useState<Vector3>(new Vector3());
 
-  const originPointRef = useRef<any>();
+  const originPointRef = useRef<Vector3>();
   useEffect(() => void (originPointRef.current = originPoint));
 
-  const activeRef = useRef<any>();
+  const activeRef = useRef<boolean>();
   useEffect(() => void (activeRef.current = active));
 
-  const pointRef = useRef<any>();
+  const pointRef = useRef<Vector3 | undefined>();
   useEffect(() => void (pointRef.current = point));
 
   const down = useCallback(
-    (e: any) => {
+    (e: ThreeEvent<PointerEvent>) => {
       setActive(true);
       setOriginPoint(e.point);
       // console.log(e.point, originPoint, originPointRef.current);
@@ -28,26 +29,26 @@ export function useDrag(onDrag: any, onEnd: any) {
         speed: 0.0,
       });
       e.stopPropagation();
-      e.target.setPointerCapture(e.pointerId);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
     },
     [],
   );
 
   const up = useCallback(
-    (e: any) => {
+    (e: ThreeEvent<PointerEvent>) => {
       setActive(false);
       useOrbitSpeedStore.setState({
         speed: 0.5,
       });
       e.stopPropagation();
-      e.target.releasePointerCapture(e.pointerId);
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
       if (onEnd) onEnd();
     },
     [onEnd],
   );
 
   const move = useCallback(
-    (event: any) => {
+    (event: ThreeEvent<PointerEvent>) => {
       if (activeRef.current) {
         event.stopPropagation();
 
@@ -59,8 +60,8 @@ export function useDrag(onDrag: any, onEnd: any) {
         //
         // Add ability to close curve
 
-        if (!pointRef.current.equals(event.point) && !originPointRef.current.equals(event.point)) {
-          onDrag(event.point.add(event.face.normal));
+        if (!pointRef.current?.equals(event.point) && !originPointRef.current?.equals(event.point)) {
+          onDrag(event.point.add(event.face!.normal));
           setPoint(event.point);
         }
 

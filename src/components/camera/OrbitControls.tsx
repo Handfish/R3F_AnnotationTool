@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { extend, useThree, ReactThreeFiber } from '@react-three/fiber'
-// import camContext from './CameraContext';
-// @ts-ignore
 import { OrbitControls } from 'three-stdlib';
 extend({ OrbitControls })
 

@@ -7,7 +7,10 @@ import { useMouseEvents } from '../hooks/useMouseEvents';
 
 import type { HotspotSvgProps } from '../@types/custom-typings';
 
-function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, iconFillColor: string, size: Vector2) {
+/**
+* Draw Icons from SVG data and convert to raster
+*/
+function drawIcon({ paths, viewport }: { paths: Path2D[], viewport: Vector4 }, iconFillColor: string, size: Vector2) {
   const canvas = document.createElement('canvas');
 
   const STROKE_SIZE = 3;
@@ -50,13 +53,11 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, ic
 
   // context.translate(width / 2, height / 2);
   context.translate((width / 2) + STROKE_SIZE, (height / 2) + STROKE_SIZE);
-
   // context.scale(scale, scale);
   context.scale(scale * .85, scale * .85);
-
   context.translate(-viewport.x - viewport.width / 2, - viewport.y - viewport.height / 2);
 
-  for(let x = 0; x < paths.length; x++) {
+  for (let x = 0; x < paths.length; x++) {
     context.beginPath();
     context.fillStyle = iconFillColor;
     context.fill(new Path2D(paths[x]));
@@ -66,20 +67,28 @@ function drawIcon({paths, viewport} : { paths: Path2D[], viewport: Vector4 }, ic
   return canvas;
 }
 
+/**
+* Save memory by reusing Objects
+* https://docs.pmnd.rs/react-three-fiber/advanced/scaling-performance#re-using-geometries-and-materials
+*/
+const scaleVector = new Vector3();
+const emptyVector = new Vector3();
 
+/**
+* Expandable Icons derived from SVG Data which display / scale to a uniform size during camera zoom
+*/
 export default function HotspotSvg(props: HotspotSvgProps) {
   const uuid = useMemo(() => uuidv4(), []);
   const [active, setActive] = useState(false);
-  const {onPointerOver, onPointerOut} = useMouseEvents(uuid);
+  const { onPointerOver, onPointerOut } = useMouseEvents(uuid);
 
   const spriteFront = useRef<Sprite>(null!);
   const spriteBack = useRef<Sprite>(null!);
 
-
   const map = useMemo(() => {
-    const paths = props.svg.paths.map((path: string) => new Path2D(path));
-    const viewport = new Vector4(...props.svg.viewBox.split(' ').map((ele: string) => parseInt(ele)));
-    const map = new CanvasTexture(drawIcon({paths, viewport}, !active ? 'black' : 'teal', new Vector2(128, 128)));
+    const paths = props.svg!.paths.map((path: string) => new Path2D(path));
+    const viewport = new Vector4(...props.svg!.viewBox.split(' ').map((ele: string) => parseInt(ele)));
+    const map = new CanvasTexture(drawIcon({ paths, viewport }, !active ? 'black' : 'teal', new Vector2(128, 128)));
     return map;
   }, [props, active]);
 
@@ -87,10 +96,8 @@ export default function HotspotSvg(props: HotspotSvgProps) {
     const HEIGHT_WIDTH_PX = 60;
     const CONTAINING_DIV_HEIGHT = 576;
 
-    const scaleVector = new Vector3();
-    // const subVector = scaleVector.subVectors(props.position! as Vector3, camera.position);
-    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-    const scale = HEIGHT_WIDTH_PX/CONTAINING_DIV_HEIGHT * subVector.length(); 
+    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(emptyVector), camera.position);
+    const scale = HEIGHT_WIDTH_PX / CONTAINING_DIV_HEIGHT * subVector.length();
 
     spriteFront.current.scale.set(scale, scale, 1);
     spriteBack.current.scale.set(scale, scale, 1);

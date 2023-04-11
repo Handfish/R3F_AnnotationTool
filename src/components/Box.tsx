@@ -11,6 +11,16 @@ import SvgQuestionCircle from '../icons/QuestionCircle'
 
 import type { MeshProps, HotspotSvgProps } from '../@types/custom-typings';
 
+const BoxCornersVectors = [
+  new Vector3(-0.5, -0.5, 0.5),
+  new Vector3(-0.5, -0.5, -0.5),
+  new Vector3(-0.5, 0.5, -0.5),
+  new Vector3(-0.5, 0.5, 0.5)
+];
+
+/**
+* Box is an example of a Prefab Component
+*/
 export default function Box(props: MeshProps & HotspotSvgProps) {
   // This reference will give us direct access to the mesh
   const group = useRef<Group>(null!);
@@ -51,10 +61,10 @@ export default function Box(props: MeshProps & HotspotSvgProps) {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
-      <Hotspot position={new Vector3(-0.5, -0.5, 0.5)}></Hotspot>
-      <HotspotSvg position={new Vector3(-0.5, -0.5, -0.5)} svg={SvgLightbulb} />
-      <HotspotSvg position={new Vector3(-0.5, 0.5, -0.5)} svg={SvgQuestionCircle} />
-      <HotspotSvg position={new Vector3(-0.5, 0.5, 0.5)} svg={SvgEye} />
+      <Hotspot position={BoxCornersVectors[0]}></Hotspot>
+      <HotspotSvg position={BoxCornersVectors[1]} svg={SvgLightbulb} />
+      <HotspotSvg position={BoxCornersVectors[2]} svg={SvgQuestionCircle} />
+      <HotspotSvg position={BoxCornersVectors[3]} svg={SvgEye} />
     </group>
   )
 }

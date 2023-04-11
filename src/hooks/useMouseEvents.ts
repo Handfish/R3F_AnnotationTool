@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMouseOverStore } from '../stores/stores';
 import type { MouseEventData } from '../@types/custom-typings';
+import { ThreeEvent } from '@react-three/fiber';
 
 export function useMouseEvents(uuid: string) {
   const setCursorPointer = (isPointerCursor: boolean) => {
@@ -10,7 +11,7 @@ export function useMouseEvents(uuid: string) {
   const addElement = useMouseOverStore(state => state.addElement);
   const removeElement = useMouseOverStore(state => state.removeElement);
 
-  const onPointerOver = (e: any) => {
+  const onPointerOver = (e: ThreeEvent<PointerEvent> | MouseEventData) => {
     const data: MouseEventData = {
       distance: e.distance,
       point: e.point,
@@ -22,26 +23,26 @@ export function useMouseEvents(uuid: string) {
 
     // console.log(Object.keys(intersections).length);
 
-    if(Object.keys(intersections).length > 0)
+    if (Object.keys(intersections).length > 0)
       setCursorPointer(true);
     else
       setCursorPointer(false);
 
   };
 
-  const onPointerOut = (e: any) => {
+  const onPointerOut = (e: ThreeEvent<PointerEvent> | MouseEventData) => {
     const data: MouseEventData = {
       distance: e.distance,
       point: e.point,
       uuid
     };
-    removeElement(data);
+    removeElement(data.uuid);
 
     const intersections = useMouseOverStore.getState().intersections;
 
     // console.log(Object.keys(intersections).length);
 
-    if(Object.keys(intersections).length > 0)
+    if (Object.keys(intersections).length > 0)
       setCursorPointer(true);
     else
       setCursorPointer(false);

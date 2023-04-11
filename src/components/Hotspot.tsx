@@ -6,9 +6,19 @@ import { useMouseEvents } from '../hooks/useMouseEvents';
 
 import type { MeshProps } from '../@types/custom-typings';
 
+/**
+* Save memory by reusing Objects
+* https://docs.pmnd.rs/react-three-fiber/advanced/scaling-performance#re-using-geometries-and-materials
+*/
+const scaleVector = new Vector3();
+const emptyVector = new Vector3();
+
+/**
+* Expandable Icons derived from Sprites which display / scale to a uniform size during camera zoom
+*/
 export default function Hotspot(props: MeshProps) {
   const uuid = useMemo(() => uuidv4(), []);
-  const {onPointerOver, onPointerOut} = useMouseEvents(uuid);
+  const { onPointerOver, onPointerOut } = useMouseEvents(uuid);
 
   const spriteFront = useRef<Sprite>(null!);
   const spriteBack = useRef<Sprite>(null!);
@@ -20,9 +30,8 @@ export default function Hotspot(props: MeshProps) {
     const HEIGHT_WIDTH_PX = 60;
     const CONTAINING_DIV_HEIGHT = 576;
 
-    const scaleVector = new Vector3();
-    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(new Vector3())! as Vector3, camera.position);
-    const scale = HEIGHT_WIDTH_PX/CONTAINING_DIV_HEIGHT * subVector.length(); 
+    const subVector = scaleVector.subVectors(spriteFront.current.getWorldPosition(emptyVector), camera.position);
+    const scale = HEIGHT_WIDTH_PX / CONTAINING_DIV_HEIGHT * subVector.length();
 
     spriteFront.current.scale.set(scale, scale, 1);
     spriteBack.current.scale.set(scale, scale, 1);

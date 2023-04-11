@@ -5,6 +5,9 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { hilbert3D } from 'three/examples/jsm/utils/GeometryUtils.js'
 
+/**
+* HilbertCurve Ported from ThreeJS documentation to React Three Fiber
+*/
 export default function HilbertCurve() {
   //https://github.com/pmndrs/react-three-fiber/issues/103
   const line = useMemo(() => {

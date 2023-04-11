@@ -1,118 +1,134 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { Vector2, Vector3 } from 'three';
 import type { IconData, MouseEventData, Vertices } from '../@types/custom-typings';
-
 // import type { PartialState } from zustand;
 
-type Vector3Store = {
+/**
+* useGlobalAdjustedOriginStore Data
+*
+* vec - Initial OBJ import location
+* initialized - true if an OBJ is rendered
+*/
+type GlobalAdjustedOriginState = {
   vec: Vector3;
   initialized: boolean;
   setVec: (input: Vector3) => void;
 };
 
-export const useVector3Store = create<Vector3Store>((set: SetState<Vector3Store>, get: GetState<Vector3Store>) => ({
-  vec: new Vector3(),
-  initialized: false,
-  setVec: (input: Vector3): void => {
-    set({
-      vec: input,
-      initialized: true
-    });
-  }
-}));
+/**
+* Intended to translate all obj coordinates by vec (Vector3).
+*
+* Vec equals the origin of the first imported OBJ file Everything imported into the scene
+* afterwards is translated by that vector in order to brind the relevant objs into focus
+*
+*/
+export const useGlobalAdjustedOriginStore = create<GlobalAdjustedOriginState>()(
+  (set) => ({
+    vec: new Vector3(),
+    initialized: false,
+    setVec: (input: Vector3): void => {
+      set({
+        vec: input,
+        initialized: true
+      });
+    }
+  })
+);
 
-
-
-
-
-type OrbitSpeedStore = {
+/**
+* useOrbitSpeedStore Data
+*
+* speed - scalar for camera rotation speed
+*/
+type OrbitSpeedState = {
   speed: number;
   setSpeed: (input: number) => void;
 };
 
-export const useOrbitSpeedStore = create<OrbitSpeedStore>((set: SetState<OrbitSpeedStore>, get: GetState<OrbitSpeedStore>) => ({
-  speed: 0.5,
-  setSpeed: (input: number): void => {
-    set({
-      speed: input,
-    });
-  }
-}));
+/**
+* Used to disable rotating the camera when dragging the mouse in the useDrag hook
+*/
+export const useOrbitSpeedStore = create<OrbitSpeedState>()(
+  (set) => ({
+    speed: 0.5,
+    setSpeed: (input: number): void => {
+      set({
+        speed: input,
+      });
+    }
+  })
+);
 
-
-
-
-
-
-type CurvesStore = {
+/**
+* useCurvesStore Data
+*
+* curves - 2D array of Vector3
+*/
+type CurvesState = {
   curves: Vertices[];
   setCurves: (input: Vertices[]) => void;
 };
 
 
-export const useCurvesStore = create<CurvesStore>((set: SetState<CurvesStore>, get: GetState<CurvesStore>) => ({
-  curves: [],
-  setCurves: (input: Vertices[]): void => {
-    set({
-      curves: input,
-    });
-  }
-}));
+/**
+* Array of Vertices data for custom drawn curves
+*/
+export const useCurvesStore = create<CurvesState>()(
+  (set) => ({
+    curves: [],
+    setCurves: (input: Vertices[]): void => {
+      set({
+        curves: input,
+      });
+    }
+  })
+);
 
 
-
-
-
-
-
-
-// interface IIntersections {
-//   [key: string]: MouseEventData;
-//   // [key: string]: MouseEventData | PartialState<MouseOverStore, keyof MouseOverStore>;
-// }
-
-type MouseOverStore = {
-  //TODO: Figure out this type
-  // intersections: IIntersections,
-
-  intersections: any,
+/**
+* useMouseOverStore Data
+*
+* intersections - Array of expandable elements presently moused over
+* addElement - Push
+* removeElement - filter based on uuid
+*/
+type MouseOverState = {
+  intersections: MouseEventData[],
   addElement: (data: MouseEventData) => void;
-  removeElement: (data: MouseEventData) => void;
+  removeElement: (uuid: string) => void;
 };
 
-export const useMouseOverStore = create<MouseOverStore>((set: SetState<MouseOverStore>, get: GetState<MouseOverStore>) => ({
-  intersections: {},
-  addElement: (data: MouseEventData): void => {
-    const { intersections } = get();
+/**
+* All presently moused over expandable scene elements
+* used to properly set cursor style, open singular elements, etc
+*/
+export const useMouseOverStore = create<MouseOverState>()(
+  (set, get) => ({
+    intersections: [],
 
-    const intersectionsMerge = { ...intersections, [data.uuid]: data };
+    addElement: (data: MouseEventData): void => {
+      const { intersections } = get();
 
-    // console.log(intersectionsMerge);
-    set({
-      intersections: intersectionsMerge
-    });
+      set({
+        intersections: [...intersections, data]
+      });
+    },
 
-  },
-  removeElement: (data: MouseEventData): void => {
-    const { intersections } = get();
-    const uuid = data.uuid;
+    removeElement: (uuid: string): void => {
+      const { intersections } = get();
 
-    //Remove uuid from map
-    const { [uuid]: unusedValue, ...rest } = intersections
-
-    // console.log(rest);
-    set({
-      intersections: rest,
-    });
-  },
-}));
-
+      set({
+        intersections: intersections.filter(i => i.uuid !== uuid),
+      });
+    }
+  })
+);
 
 
-
-
-
-type DndHotspotSvgProps = {
+/**
+* Data required to place icon in 3d canvas
+*/
+export type DndHotspotSvgProps = {
   position: Vector3,
   icon: IconData
 }
@@ -122,29 +138,33 @@ type PendingDndHotspotSvg = {
   vec2: Vector2
 }
 
-type DndHotspotSvgsStore = {
+type DndHotspotSvgsState = {
   pendingDndHotspotSvg?: PendingDndHotspotSvg | null,
   hotspotSvgs: DndHotspotSvgProps[],
   setDndHotspotSvgs: (input: DndHotspotSvgProps[]) => void;
   setPendingDndHotspotSvg: (input: PendingDndHotspotSvg) => void;
 }
 
-export const useDndHotspotSvgsStore = create<DndHotspotSvgsStore>((set: SetState<DndHotspotSvgsStore>, get: GetState<DndHotspotSvgsStore>) => ({
-  pendingDndHotspotSvg: null,
-  hotspotSvgs: [],
-  setDndHotspotSvgs: (input: DndHotspotSvgProps[]): void => {
-    set({
-      hotspotSvgs: input,
-    });
-  },
-  setPendingDndHotspotSvg: (input: PendingDndHotspotSvg): void => {
-    set({
-      pendingDndHotspotSvg: input,
-    });
-  }
-}));
-
-
+/**
+* DndHotspotSvgs - Array of Hotspots in 3d Canvas
+* PendingDndHotspotSvg - settable memory which useEffect converts to canvas Hostspot
+*/
+export const useDndHotspotSvgsStore = create<DndHotspotSvgsState>()(
+  (set) => ({
+    pendingDndHotspotSvg: null,
+    hotspotSvgs: [],
+    setDndHotspotSvgs: (input: DndHotspotSvgProps[]): void => {
+      set({
+        hotspotSvgs: input,
+      });
+    },
+    setPendingDndHotspotSvg: (input: PendingDndHotspotSvg): void => {
+      set({
+        pendingDndHotspotSvg: input,
+      });
+    }
+  })
+);
 
 
 type OBJProps = [
@@ -153,17 +173,21 @@ type OBJProps = [
 ]
 
 
-type OBJsStore = {
+type OBJsState = {
   objProps: OBJProps[];
   setObjProps: (input: OBJProps[]) => void;
 };
 
-
-export const useOBJsStore = create<OBJsStore>((set: SetState<OBJsStore>, get: GetState<OBJsStore>) => ({
-  objProps: [],
-  setObjProps: (input: OBJProps[]): void => {
-    set({
-      objProps: input
-    });
-  }
-}));
+/**
+* Array of OBJ (Organ) parts URI ids and their colors.
+*/
+export const useOBJsStore = create<OBJsState>()(
+  (set) => ({
+    objProps: [],
+    setObjProps: (input: OBJProps[]): void => {
+      set({
+        objProps: input
+      });
+    }
+  })
+);

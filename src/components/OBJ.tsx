@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
+import { useLoader } from '@react-three/fiber'
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader"
 import { Group, Mesh, Vector3 } from 'three';
-import { useVector3Store } from '../stores/stores';
-
-// import Hotspot from './Hotspot';
+import { useGlobalAdjustedOriginStore } from '../stores/stores';
 
 import type { MeshProps, OBJProps } from '../@types/custom-typings';
 
-
+/**
+* Renderable OBJ with color props and logic to center camera on their origin
+*/
 export default function OBJ(props: MeshProps & OBJProps) {
   const { objUrl, mtlUrl, colorProp, ...meshProps } = props;
   const color = useMemo(() => colorProp, [colorProp]);
@@ -19,25 +19,23 @@ export default function OBJ(props: MeshProps & OBJProps) {
 
     if (mtlUrl) {
       materials.preload()
-      //@ts-ignore
       loader.setMaterials(materials)
     }
 
     return loader;
   })
   const [hovered, setHover] = useState(false)
-  const [active, setActive] = useState(false)
-
+  // const [active, setActive] = useState(false)
+  const [active] = useState(false)
   // const [hotspotVec, setHotspotVec] = useState<Vector3>(new Vector3());
 
-
-  console.log(obj);
+  // console.log(obj);
 
   const group = useRef<Group>(null!);
   const { geometry } = obj.children[0] as Mesh;
 
-  const vec = useVector3Store(state => state.vec);
-  const initialized = useVector3Store(state => state.initialized);
+  const vec = useGlobalAdjustedOriginStore(state => state.vec);
+  const initialized = useGlobalAdjustedOriginStore(state => state.initialized);
 
   /*
    * TODO - The loading of the first model should be done elsewhere
@@ -58,7 +56,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
       geometry.boundingBox!.getCenter(center);
 
       if (!initialized) {
-        useVector3Store.setState({
+        useGlobalAdjustedOriginStore.setState({
           vec: center,
           initialized: true
         });
@@ -74,10 +72,11 @@ export default function OBJ(props: MeshProps & OBJProps) {
   }, [geometry, initialized, vec]);
 
   // Rotate mesh every frame, this is outside of React without overhead
-  useFrame(() => {
-    // group.current.rotation.x = group.current.rotation.y += 0.0005
-    // // obj.rotation.x = obj.rotation.y += 0.001;
-  })
+
+  // useFrame(() => {
+  // group.current.rotation.x = group.current.rotation.y += 0.0005
+  // // obj.rotation.x = obj.rotation.y += 0.001;
+  // })
 
   return (
     <group
@@ -96,10 +95,8 @@ export default function OBJ(props: MeshProps & OBJProps) {
           setHover(false)
         }}
       >
-
         <meshStandardMaterial color={hovered ? 'hotpink' : color ? color : 'orange'} />
         {/* <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} /> */}
-
       </mesh>
 
       {/* <Hotspot position={hotspotVec}></Hotspot> */}

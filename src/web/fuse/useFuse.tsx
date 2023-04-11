@@ -1,9 +1,13 @@
 import Fuse from 'fuse.js';
 import { useCallback, useMemo, useState } from 'react';
 import { debounce } from 'throttle-debounce';
+import { KeyboardEvent } from 'react';
 
-type Result = any;
+type Result = string;
 
+/**
+ * Fuse Search Hook for creating components with Fuse
+ */
 export const useFuse = (list: Result[], options: Fuse.IFuseOptions<Result> & Fuse.FuseSearchOptions) => {
   // defining our query state in there directly
   const [query, updateQuery] = useState('');
@@ -13,7 +17,7 @@ export const useFuse = (list: Result[], options: Fuse.IFuseOptions<Result> & Fus
   const { limit, ...fuseOptions } = options;
 
 
-  // let's memoize the fuse instance for performances
+  // memoize the fuse instance for performance
   const fuse = useMemo(
     () => new Fuse(list, fuseOptions),
     [list, fuseOptions]
@@ -33,15 +37,22 @@ export const useFuse = (list: Result[], options: Fuse.IFuseOptions<Result> & Fus
 
 
   // pass a handling helper to speed up implementation
-  const onSearch = useCallback(
-    (e: any) => setQuery(e.target.value.trim()),
+  const onSearchKeyUp = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => setQuery((e.target as HTMLInputElement).value.trim()),
+    [setQuery]
+  );
+
+  // pass a handling helper to speed up implementation
+  const onSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value.trim()),
     [setQuery]
   );
 
   // still returning `setQuery` for custom handler implementations
   return {
     hits,
-    onSearch,
+    onSearchKeyUp,
+    onSearchChange,
     query,
     setQuery,
   };

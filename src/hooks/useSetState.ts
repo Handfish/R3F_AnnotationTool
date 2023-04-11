@@ -1,3 +1,9 @@
+/*
+* DEPRECATED / UNUSED
+*
+* https://github.com/streamich/react-use/blob/master/docs/useSetState.md
+*
+*/
 import { useState } from 'react';
 
 export const useSetState = <State = any>(

@@ -1,9 +1,13 @@
+/*
+ * Unused but potentially helpful class
+ *    Research in Drag and drop classes
+ */
 import * as React from 'react'
 import { TransformControls as TransformControlsImpl } from 'three-stdlib'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { Box, OrbitControls, TransformControls } from '@react-three/drei'
 
-export default function TransformControlsLockScene({ showX, showY, showZ }: { showX: boolean, showY: boolean, showZ: boolean}) {
+export default function TransformControlsLockScene({ showX, showY, showZ }: { showX: boolean, showY: boolean, showZ: boolean }) {
   const orbitControls = React.useRef<OrbitControlsImpl>(null!)
   const transformControls = React.useRef<TransformControlsImpl>(null!)
 
@@ -18,7 +22,6 @@ export default function TransformControlsLockScene({ showX, showY, showZ }: { sh
 
   return (
     <>
-      {/*@ts-ignore*/}
       <TransformControls ref={transformControls} showX={showX} showY={showY} showZ={showZ}>
         <Box>
           <meshBasicMaterial attach="material" wireframe />

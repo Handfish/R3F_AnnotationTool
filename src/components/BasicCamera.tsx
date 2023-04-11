@@ -1,6 +1,9 @@
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { useOrbitSpeedStore } from '../stores/stores';
 
+/**
+* Scene camera Component
+*/
 export default function Camera() {
   const rotateSpeed = useOrbitSpeedStore(state => state.speed);
 

@@ -2,10 +2,8 @@ import { useMemo, useRef, Suspense, useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import Annotation from './components/Annotation'
 import HotspotSvg from './components/HotspotSvg';
-// import Box from './components/Box'
+
 import OBJ from './components/OBJ'
-// import Hotspot from './components/Hotspot'
-// import HilbertCurve from './components/HilbertCurve'
 
 import { useDrag } from './hooks/useDrag';
 import BasicCamera from './components/BasicCamera'
@@ -36,30 +34,23 @@ import SvgHourglass from './icons/Hourglass';
 
 import { Perf } from 'r3f-perf'
 
-
-// import { TouchBackend } from 'react-dnd-touch-backend';
-// import { DndProvider } from 'react-dnd-multi-backend';
-
-// import { DndProvider } from 'react-dnd';
-import { /*useDrag as useDndDrag,*/ useDrop as useDndDrop } from 'react-dnd';
+import { DropTargetMonitor, useDrop as useDndDrop } from 'react-dnd';
 import { DndProvider } from 'react-dnd-multi-backend';
 import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 
 import { DndIcon } from './web/DraggableIconDnd';
 import { ItemTypes } from './web/ItemTypes';
 
-import { useDndHotspotSvgsStore } from './stores/stores';
+import { DndHotspotSvgProps, useDndHotspotSvgsStore } from './stores/stores';
 // import type { PendingAnnotation } from './stores/stores';
 
 import { useOBJsStore } from './stores/stores';
 
-
 import MySearch from './web/fuse/MySearch';
-
 
 function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
-  const lineMaterialRef = useRef<any>(null!);
+  const lineMaterialRef = useRef<LineMaterial>(null!);
 
   // const lineGeometryRef = useRef<any>(null!);
 
@@ -108,8 +99,6 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
     line.computeLineDistances();
     line.scale.set(1, 1, 1);
 
-
-
     const bbox = new Box3().setFromObject(line);
 
     if (bbox.min.x !== Infinity &&
@@ -146,16 +135,16 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
 
       <mesh
         position={position.toArray()}
-        onPointerOver={() => {
+        onPointerOver={(e) => {
           if (props.hoverable) {
-            mouseEventsMapOver(uuid);
+            mouseEventsMapOver(e);
             lineMaterialRef.current.vertexColors = false;
             lineMaterialRef.current.needsUpdate = true;
           }
         }}
-        onPointerOut={() => {
+        onPointerOut={(e) => {
           if (props.hoverable) {
-            mouseEventsMapOut(uuid);
+            mouseEventsMapOut(e);
             lineMaterialRef.current.vertexColors = true;
             lineMaterialRef.current.needsUpdate = true;
           }
@@ -174,31 +163,24 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   );
 }
 
-function DrawCurveTool() {
+function DrawCurveToolHOC() {
   // const [,forceUpdate] = useState();
 
   const [vertices, setVertices] = useState<Vertices>([]);
   const [curves, setCurves] = useState<Vertices[]>([]);
 
   //https://stackoverflow.com/a/58877875
-  const verticesRef = useRef<any>([]);
-  const curvesRef = useRef<any>([]);
+  const verticesRef = useRef<Vertices>([]);
+  useEffect(() => void (verticesRef.current = vertices));
+  const curvesRef = useRef<Vertices>([]);
+  useEffect(() => void (curvesRef.current = curves));
 
-  // const curvesRef = useCallbackRef<any>([], () => setCurves([...curves, vertices]));
+  const onDrag = (v: Vector3) => {
+    const haveNewVerticesBeenDrawn = !vertices?.[vertices.length - 1]?.equals(v)
 
-  useEffect(() => {
-    verticesRef.current = vertices;
-    curvesRef.current = curves;
-  })
-
-  const onDrag = (v: any) => {
-    // console.log(v)
-
-    // setVertices([...verticesRef.current, v]);
-
-    if (vertices.length > 0 && !vertices[vertices.length - 1].equals(v))
+    if (vertices.length > 0 && haveNewVerticesBeenDrawn)
       setVertices([...verticesRef.current, v]);
-    else if (vertices.length <= 0)
+    else if (vertices.length === 0)
       setVertices([...verticesRef.current, v]);
   };
 
@@ -207,35 +189,25 @@ function DrawCurveTool() {
   };
 
   useEffect(() => {
-    // useCurvesStore.setState({
-    //   curves,
-    // });
-
     setVertices([]);
   }, [curves]);
 
-
-
-  const curvesMap = curves.map((curve, i) =>
+  const curvesMap = curves.map((_, i) =>
     (<Curve key={i} vertices={curves[i]} hoverable={true} />)
   );
 
   const bindDrag = useDrag(onDrag, onEnd);
 
-
-
   // OBJ MAP
   const elementIds = useOBJsStore(state => state.objProps);
+  console.log(elementIds);
 
   const OBJMap = elementIds.map((obj, i) =>
     (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]} />)
   );
 
-
-  //TODO - Separate props so objUrl isnt reloaded
   return (
     < >
-      {/* <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
       <Curve vertices={vertices} hoverable={false} />
       {curvesMap}
       <group {...bindDrag} >
@@ -244,24 +216,6 @@ function DrawCurveTool() {
     </>
   );
 }
-
-
-
-
-// function CurvesArray() {
-//   const curves = useCurvesStore(state => state.curves);
-
-//   const curvesMap = curves.map((curve, i) =>
-//     (<Curve key={i} vertices={curves[i]}  />)
-//   );
-
-//   return (
-//     <>
-//       {curvesMap}
-//     </>
-//   );
-// }
-
 
 function DndHotspotSvgBuilder() {
   const { scene, raycaster, camera } = useThree();
@@ -273,12 +227,26 @@ function DndHotspotSvgBuilder() {
   const CONTAINING_DIV_WIDTH = 1024;
   const CONTAINING_DIV_HEIGHT = 576;
 
+  /*
+  * In order for the main useEffect to have a proper
+  * dependency array we use refs to utilize problematic react life cycle memory
+  */
+  const sceneChildrenRef = useRef<Object3D[]>([]);
+  useEffect(() => void (sceneChildrenRef.current = scene.children));
+
+  const hotspotSvgsRef = useRef<DndHotspotSvgProps[]>([]);
+  useEffect(() => void (hotspotSvgsRef.current = hotspotSvgs));
+
+  /*
+  * Main useEffect responsible for constructing objects handling SVG data and sprite data
+  * for hotspots in canvas
+  */
   useEffect(() => {
     if (pendingDndHotspotSvg !== null) {
+
       const mouseVector = new Vector2();
       mouseVector.x = (pendingDndHotspotSvg!.vec2.x / CONTAINING_DIV_WIDTH) * 2 - 1;
       mouseVector.y = - (pendingDndHotspotSvg!.vec2.y / CONTAINING_DIV_HEIGHT) * 2 + 1;
-      // mouseVector.z = 1;
 
       // console.log(raycaster);
       // console.log(mouseVector);
@@ -286,7 +254,7 @@ function DndHotspotSvgBuilder() {
 
       raycaster.setFromCamera(mouseVector, camera);
 
-      const intersections = raycaster.intersectObjects(scene.children, true);
+      const intersections = raycaster.intersectObjects(sceneChildrenRef.current, true);
 
       if (intersections.length > 0) {
         const closestIntersection = intersections.reduce((prev, curr) => {
@@ -301,10 +269,16 @@ function DndHotspotSvgBuilder() {
           icon: pendingDndHotspotSvg!.icon
         };
 
-        setDndHotspotSvgs([...hotspotSvgs, newDndHotspotSvg]);
+        setDndHotspotSvgs([...hotspotSvgsRef.current, newDndHotspotSvg]);
       }
     }
-  }, [pendingDndHotspotSvg]);
+  }, [pendingDndHotspotSvg
+    , camera
+    , raycaster
+    , setDndHotspotSvgs
+    , hotspotSvgsRef
+    , sceneChildrenRef
+  ]);
 
   return (
     <></>
@@ -325,27 +299,13 @@ function DndHotspotSvgs() {
   );
 }
 
-
-// function OBJStoreMap () {
-//   const elementIds = useOBJsStore(state => state.elementIds);
-
-//   const OBJMap = elementIds.map((elementId, i) =>
-//     (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${elementId}.obj`}/>)
-//   );
-
-//   return (
-//     < >
-//       {OBJMap }
-//     </>
-//   );
-// }
-
 function App() {
   const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   let point: { x: number, y: number } = { x: 0, y: 0 };
 
-  const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
-    accept: ItemTypes.BOX,
+  // const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
+  const [, drop] = useDndDrop(() => ({
+    accept: ItemTypes.ICON,
     drop: (item: DndIconItem) => {
       console.log(point);
 
@@ -356,30 +316,14 @@ function App() {
       return { name: 'Canvas' };
     }
     ,
-    collect: (monitor: any) => ({
+    collect: (monitor: DropTargetMonitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
-    hover: (item, monitor) => {
+    hover: (_, monitor) => {
       point = monitor.getClientOffset()!;
     }
   }))
-
-  // const isActive = canDrop && isOver;
-
-  // let backgroundColor = '#222';
-  // if (isActive) {
-  // 	backgroundColor = 'darkgreen';
-  // } else if (canDrop) {
-  // 	backgroundColor = 'darkkhaki';
-  // }
-
-  // const [hovered, set] = useState(null)
-  // useEffect(() => {
-  //   const cursor = `<svg width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0)"><path fill="rgba(255, 255, 255, 0.5)" d="M29.5 54C43.031 54 54 43.031 54 29.5S43.031 5 29.5 5 5 15.969 5 29.5 15.969 54 29.5 54z" stroke="#000"/><g filter="url(#filter0_d)"><path d="M29.5 47C39.165 47 47 39.165 47 29.5S39.165 12 29.5 12 12 19.835 12 29.5 19.835 47 29.5 47z" fill="${backgroundColor}"/></g><path d="M2 2l11 2.947L4.947 13 2 2z" fill="#000"/><text fill="#000" style="white-space:pre" font-family="Inter var, sans-serif" font-size="10" letter-spacing="-.01em"><tspan x="35" y="63">${hovered}</tspan></text></g><defs><clipPath id="clip0"><path fill="#fff" d="M0 0h64v64H0z"/></clipPath><filter id="filter0_d" x="6" y="8" width="47" height="47" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/><feOffset dy="2"/><feGaussianBlur stdDeviation="3"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"/><feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/><feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/></filter></defs></svg>`
-  //   const auto = `<svg width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(255, 255, 255, 0.5)" d="M29.5 54C43.031 54 54 43.031 54 29.5S43.031 5 29.5 5 5 15.969 5 29.5 15.969 54 29.5 54z" stroke="#000"/><path d="M2 2l11 2.947L4.947 13 2 2z" fill="#000"/></svg>`
-  //   document.body.style.cursor = `url('data:image/svg+xml;base64,${btoa(hovered ? cursor : auto)}'), auto`
-  // }, [hovered])
 
   return (
     <>
@@ -406,7 +350,7 @@ function App() {
             {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
 
             {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-            <DrawCurveTool />
+            <DrawCurveToolHOC />
             {/* <CurvesArray /> */}
 
             {/* <OBJStoreMap /> */}
