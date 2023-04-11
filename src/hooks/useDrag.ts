@@ -19,12 +19,12 @@ export function useDrag(onDrag: any, onEnd: any) {
   useEffect(() => void (pointRef.current = point));
 
   const down = useCallback(
-    (e) => {
+    (e: any) => {
       setActive(true);
       setOriginPoint(e.point);
       // console.log(e.point, originPoint, originPointRef.current);
 
-      useOrbitSpeedStore.setState({ 
+      useOrbitSpeedStore.setState({
         speed: 0.0,
       });
       e.stopPropagation();
@@ -34,9 +34,9 @@ export function useDrag(onDrag: any, onEnd: any) {
   );
 
   const up = useCallback(
-    (e) => {
+    (e: any) => {
       setActive(false);
-      useOrbitSpeedStore.setState({ 
+      useOrbitSpeedStore.setState({
         speed: 0.5,
       });
       e.stopPropagation();
@@ -47,20 +47,19 @@ export function useDrag(onDrag: any, onEnd: any) {
   );
 
   const move = useCallback(
-    (event) => {
+    (event: any) => {
       if (activeRef.current) {
         event.stopPropagation();
 
         // console.log(event);
 
-        //TODO 
+        //TODO
         // return tuple of no normal added point and normal added point
         //  snap curve to position on mouse up
         //
         // Add ability to close curve
-        
-        if(!pointRef.current.equals(event.point) && !originPointRef.current.equals(event.point)) 
-        {
+
+        if (!pointRef.current.equals(event.point) && !originPointRef.current.equals(event.point)) {
           onDrag(event.point.add(event.face.normal));
           setPoint(event.point);
         }

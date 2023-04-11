@@ -34,6 +34,7 @@ import SvgQuestionCircle from './icons/QuestionCircle';
 import Hourglass from './icons-react/Hourglass';
 import SvgHourglass from './icons/Hourglass';
 
+import { Perf } from 'r3f-perf'
 
 
 // import { TouchBackend } from 'react-dnd-touch-backend';
@@ -67,56 +68,56 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
 
   //TODO Split useMemo to utilize updateGeometry flags instead of building new line
   const [line, position, geometryVector] = useMemo(() => {
-    let position = new Vector3(0,0,0), geometryVector = new Vector3(0,0,0);
+    let position = new Vector3(0, 0, 0), geometryVector = new Vector3(0, 0, 0);
 
-    if(props.vertices === undefined || props.vertices.length === 0 || props.vertices.length === 1)
+    if (props.vertices === undefined || props.vertices.length === 0 || props.vertices.length === 1)
       return [new Object3D(), position, geometryVector];
 
     const positions: number[] = [];
     const colors: number[] = [];
 
-    const spline = new CatmullRomCurve3( props.vertices );
-    const divisions = Math.round( 12 * props.vertices.length );
+    const spline = new CatmullRomCurve3(props.vertices);
+    const divisions = Math.round(12 * props.vertices.length);
     const point = new Vector3();
     const color = new Color();
 
-    for ( let i = 0, l = divisions; i < l; i ++ ) {
+    for (let i = 0, l = divisions; i < l; i++) {
       const t = i / l;
 
-      spline.getPoint( t, point );
-      positions.push( point.x, point.y, point.z );
+      spline.getPoint(t, point);
+      positions.push(point.x, point.y, point.z);
 
-      color.setHSL( t, 1.0, 0.5 );
-      colors.push( color.r, color.g, color.b );
+      color.setHSL(t, 1.0, 0.5);
+      colors.push(color.r, color.g, color.b);
     }
 
     const geometry = new LineGeometry();
-    geometry.setPositions( positions );
-    geometry.setColors( colors );
+    geometry.setPositions(positions);
+    geometry.setColors(colors);
 
-    const matLine = new LineMaterial( {
+    const matLine = new LineMaterial({
       color: 0xffffff,
       linewidth: 8, // in pixels
       vertexColors: true,
       resolution: new Vector2(window.innerWidth, window.innerHeight), // TODO - react to windowsize - to be set by renderer, eventually
       dashed: false,
       alphaToCoverage: false, // https://threejs.org/docs/#api/en/materials/Material.alphaToCoverage
-    } );
+    });
 
-    const line = new Line2( geometry, matLine );
+    const line = new Line2(geometry, matLine);
     line.computeLineDistances();
-    line.scale.set( 1, 1, 1 );
+    line.scale.set(1, 1, 1);
 
 
 
     const bbox = new Box3().setFromObject(line);
 
-    if(bbox.min.x !== Infinity && 
+    if (bbox.min.x !== Infinity &&
       bbox.min.y !== Infinity &&
       bbox.min.z !== Infinity &&
       bbox.max.x !== Infinity &&
       bbox.max.y !== Infinity &&
-      bbox.max.z !== Infinity 
+      bbox.max.z !== Infinity
     ) {
       position = new Vector3()
       bbox.getCenter(position);
@@ -140,20 +141,20 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   return (
     <>
       <primitive
-        object={line} 
+        object={line}
       ></primitive>
 
-      <mesh 
+      <mesh
         position={position.toArray()}
         onPointerOver={() => {
-          if(props.hoverable) {
+          if (props.hoverable) {
             mouseEventsMapOver(uuid);
             lineMaterialRef.current.vertexColors = false;
             lineMaterialRef.current.needsUpdate = true;
           }
         }}
         onPointerOut={() => {
-          if(props.hoverable) {
+          if (props.hoverable) {
             mouseEventsMapOut(uuid);
             lineMaterialRef.current.vertexColors = true;
             lineMaterialRef.current.needsUpdate = true;
@@ -173,7 +174,7 @@ function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   );
 }
 
-function DrawCurveTool () {
+function DrawCurveTool() {
   // const [,forceUpdate] = useState();
 
   const [vertices, setVertices] = useState<Vertices>([]);
@@ -190,23 +191,23 @@ function DrawCurveTool () {
     curvesRef.current = curves;
   })
 
-  const onDrag = (v: any) => { 
+  const onDrag = (v: any) => {
     // console.log(v)
 
     // setVertices([...verticesRef.current, v]);
 
-    if(vertices.length > 0 && !vertices[vertices.length-1].equals(v))
+    if (vertices.length > 0 && !vertices[vertices.length - 1].equals(v))
       setVertices([...verticesRef.current, v]);
-    else if(vertices.length <= 0)
+    else if (vertices.length <= 0)
       setVertices([...verticesRef.current, v]);
   };
 
-  const onEnd = () => { 
+  const onEnd = () => {
     setCurves([...(curvesRef.current.filter((array: Vertices) => array.length > 0)), verticesRef.current]);
   };
 
   useEffect(() => {
-    // useCurvesStore.setState({ 
+    // useCurvesStore.setState({
     //   curves,
     // });
 
@@ -223,11 +224,11 @@ function DrawCurveTool () {
 
 
 
-  // OBJ MAP 
+  // OBJ MAP
   const elementIds = useOBJsStore(state => state.objProps);
 
   const OBJMap = elementIds.map((obj, i) =>
-    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]}/>)
+    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]} />)
   );
 
 
@@ -235,10 +236,10 @@ function DrawCurveTool () {
   return (
     < >
       {/* <OBJ {...bindDrag} objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-      <Curve vertices={vertices} hoverable={false}/>
+      <Curve vertices={vertices} hoverable={false} />
       {curvesMap}
       <group {...bindDrag} >
-        {OBJMap }
+        {OBJMap}
       </group>
     </>
   );
@@ -262,9 +263,9 @@ function DrawCurveTool () {
 // }
 
 
-function DndHotspotSvgBuilder () {
+function DndHotspotSvgBuilder() {
   const { scene, raycaster, camera } = useThree();
-  const pendingDndHotspotSvg  = useDndHotspotSvgsStore(state => state.pendingDndHotspotSvg);
+  const pendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.pendingDndHotspotSvg);
   //const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   const hotspotSvgs = useDndHotspotSvgsStore(state => state.hotspotSvgs);
   const setDndHotspotSvgs = useDndHotspotSvgsStore(state => state.setDndHotspotSvgs);
@@ -273,21 +274,21 @@ function DndHotspotSvgBuilder () {
   const CONTAINING_DIV_HEIGHT = 576;
 
   useEffect(() => {
-    if(pendingDndHotspotSvg !== null) {
-      const mouseVector = new Vector3();
-      mouseVector.x = ( pendingDndHotspotSvg!.vec2.x / CONTAINING_DIV_WIDTH ) * 2 - 1;
-      mouseVector.y = - ( pendingDndHotspotSvg!.vec2.y / CONTAINING_DIV_HEIGHT ) * 2 + 1;
-      mouseVector.z = 1;
+    if (pendingDndHotspotSvg !== null) {
+      const mouseVector = new Vector2();
+      mouseVector.x = (pendingDndHotspotSvg!.vec2.x / CONTAINING_DIV_WIDTH) * 2 - 1;
+      mouseVector.y = - (pendingDndHotspotSvg!.vec2.y / CONTAINING_DIV_HEIGHT) * 2 + 1;
+      // mouseVector.z = 1;
 
       // console.log(raycaster);
       // console.log(mouseVector);
       // console.log(camera);
 
-      raycaster.setFromCamera( mouseVector, camera );
+      raycaster.setFromCamera(mouseVector, camera);
 
-      const intersections = raycaster.intersectObjects( scene.children, true );
+      const intersections = raycaster.intersectObjects(scene.children, true);
 
-      if(intersections.length > 0) {
+      if (intersections.length > 0) {
         const closestIntersection = intersections.reduce((prev, curr) => {
           return prev.distance < curr.distance ? prev : curr;
         });
@@ -299,10 +300,10 @@ function DndHotspotSvgBuilder () {
           position: closestIntersection.point.add(closestIntersection.face!.normal),
           icon: pendingDndHotspotSvg!.icon
         };
-        
+
         setDndHotspotSvgs([...hotspotSvgs, newDndHotspotSvg]);
       }
-    } 
+    }
   }, [pendingDndHotspotSvg]);
 
   return (
@@ -310,7 +311,7 @@ function DndHotspotSvgBuilder () {
   );
 }
 
-function DndHotspotSvgs () {
+function DndHotspotSvgs() {
   const hotspotSvgs = useDndHotspotSvgsStore(state => state.hotspotSvgs);
 
   const hotspotSvgsMap = hotspotSvgs.map((hotspotSvg, i) =>
@@ -343,8 +344,8 @@ function App() {
   const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   let point: { x: number, y: number } = { x: 0, y: 0 };
 
-	const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
-		accept: ItemTypes.BOX,
+  const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
+    accept: ItemTypes.BOX,
     drop: (item: DndIconItem) => {
       console.log(point);
 
@@ -356,22 +357,22 @@ function App() {
     }
     ,
     collect: (monitor: any) => ({
-			isOver: monitor.isOver(),
-			canDrop: monitor.canDrop(),
-		}),
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
     hover: (item, monitor) => {
       point = monitor.getClientOffset()!;
     }
-	}))
+  }))
 
-	// const isActive = canDrop && isOver;
+  // const isActive = canDrop && isOver;
 
-	// let backgroundColor = '#222';
-	// if (isActive) {
-	// 	backgroundColor = 'darkgreen';
-	// } else if (canDrop) {
-	// 	backgroundColor = 'darkkhaki';
-	// }
+  // let backgroundColor = '#222';
+  // if (isActive) {
+  // 	backgroundColor = 'darkgreen';
+  // } else if (canDrop) {
+  // 	backgroundColor = 'darkkhaki';
+  // }
 
   // const [hovered, set] = useState(null)
   // useEffect(() => {
@@ -382,55 +383,56 @@ function App() {
 
   return (
     <>
-        <div ref={drop} className={'app-container'}
+      <div ref={drop} className={'app-container'}
+      >
+        <Canvas
+          gl={{ powerPreference: "high-performance", antialias: true }}
         >
-          <Canvas 
-            gl={{ powerPreference: "high-performance", antialias: true }}
-          >
-            <DndHotspotSvgBuilder />
-            <DndHotspotSvgs />
-            <BasicCamera />
-            <ambientLight intensity={0.8} />
-            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-            <pointLight position={[-10, -10, -10]} />
+          <Perf />
+          <DndHotspotSvgBuilder />
+          <DndHotspotSvgs />
+          <BasicCamera />
+          <ambientLight intensity={0.8} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+          <pointLight position={[-10, -10, -10]} />
 
-            {/* <HilbertCurve /> */}
+          {/* <HilbertCurve /> */}
 
-            <Suspense fallback={null}>
-              {/* <Box position={[-1, 0, 0]} /> */}
-              {/* <Box position={[1, 0, 0]} /> */}
+          <Suspense fallback={null}>
+            {/* <Box position={[-1, 0, 0]} /> */}
+            {/* <Box position={[1, 0, 0]} /> */}
 
-              {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
-              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
+            {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
+            {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
 
-              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-              <DrawCurveTool />
-              {/* <CurvesArray /> */}
+            {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
+            <DrawCurveTool />
+            {/* <CurvesArray /> */}
 
-              {/* <OBJStoreMap /> */}
-              {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
-            </Suspense>
+            {/* <OBJStoreMap /> */}
+            {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
+          </Suspense>
 
-          </Canvas>
-        </div>
+        </Canvas>
+      </div>
 
-        <DndIcon name={"Eye"} icon={SvgEye}>
-          <Eye width="60px" height="60px"/>
-        </DndIcon>
+      <DndIcon name={"Eye"} icon={SvgEye}>
+        <Eye width="60px" height="60px" />
+      </DndIcon>
 
-        <DndIcon name={"Lightbulb"} icon={SvgLightbulb}>
-          <Lightbulb width="60px" height="60px"/>
-        </DndIcon>
+      <DndIcon name={"Lightbulb"} icon={SvgLightbulb}>
+        <Lightbulb width="60px" height="60px" />
+      </DndIcon>
 
-        <DndIcon name={"QuestionCircle"} icon={SvgQuestionCircle}>
-          <QuestionCircle width="60px" height="60px"/>
-        </DndIcon>
+      <DndIcon name={"QuestionCircle"} icon={SvgQuestionCircle}>
+        <QuestionCircle width="60px" height="60px" />
+      </DndIcon>
 
-        <DndIcon name={"Hourglass"} icon={SvgHourglass}>
-          <Hourglass width="60px" height="60px"/>
-        </DndIcon>
+      <DndIcon name={"Hourglass"} icon={SvgHourglass}>
+        <Hourglass width="60px" height="60px" />
+      </DndIcon>
 
-        <MySearch />
+      <MySearch />
     </>
   )
 }

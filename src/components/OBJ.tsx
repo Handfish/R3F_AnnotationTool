@@ -14,14 +14,13 @@ export default function OBJ(props: MeshProps & OBJProps) {
   const { objUrl, mtlUrl, colorProp, ...meshProps } = props;
   const color = useMemo(() => colorProp, [colorProp]);
 
-
   const materials = useLoader(MTLLoader, String(mtlUrl));
   const obj = useLoader(OBJLoader, objUrl, loader => {
 
-    if(mtlUrl) {
+    if (mtlUrl) {
       materials.preload()
       //@ts-ignore
-      loader.setMaterials(materials) 
+      loader.setMaterials(materials)
     }
 
     return loader;
@@ -31,6 +30,8 @@ export default function OBJ(props: MeshProps & OBJProps) {
 
   // const [hotspotVec, setHotspotVec] = useState<Vector3>(new Vector3());
 
+
+  console.log(obj);
 
   const group = useRef<Group>(null!);
   const { geometry } = obj.children[0] as Mesh;
@@ -51,20 +52,20 @@ export default function OBJ(props: MeshProps & OBJProps) {
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();
 
-    let center = new Vector3(); 
+    let center = new Vector3();
 
-    if(geometry.boundingBox) {
+    if (geometry.boundingBox) {
       geometry.boundingBox!.getCenter(center);
 
-      if(!initialized){
-        useVector3Store.setState({ 
+      if (!initialized) {
+        useVector3Store.setState({
           vec: center,
           initialized: true
         });
       }
       else {
         geometry.translate(-vec.x, -vec.y, -vec.z);
-        geometry.rotateX(3 * Math.PI/2);
+        geometry.rotateX(3 * Math.PI / 2);
         geometry.boundingBox!.getCenter(center);
 
         // setHotspotVec(new Vector3(center.x + 30, center.y, center.z));
@@ -81,7 +82,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
   return (
     <group
       ref={group}
-      >
+    >
       <mesh
         {...meshProps}
         geometry={geometry}
@@ -94,7 +95,7 @@ export default function OBJ(props: MeshProps & OBJProps) {
           // e.stopPropagation()
           setHover(false)
         }}
-        >
+      >
 
         <meshStandardMaterial color={hovered ? 'hotpink' : color ? color : 'orange'} />
         {/* <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} /> */}
