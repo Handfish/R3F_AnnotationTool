@@ -5,6 +5,12 @@ import { ThreeEvent } from '@react-three/fiber';
 
 // Derived from the following code:
 // https://github.com/pmndrs/react-three-fiber/blob/99e2a590dd8dbbf4d787a9ab3103e4bea950cc4b/example/src/demos/Lines.tsx
+/**
+ * Custom Hook to capture 3d space data from a raycaster from camera to collision on scene component implementing hook functions
+ *
+ *  Drag down, and up disable camera rotation
+ *  Move returns collision data and normal data from collision object for usage in implementations
+ */
 export function useDrag(onDrag: (v: Vector3) => void, onEnd: () => void) {
   const [active, setActive] = useState(false);
   const [point, setPoint] = useState<Vector3>(new Vector3());

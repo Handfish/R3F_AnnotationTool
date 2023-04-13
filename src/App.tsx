@@ -7,8 +7,6 @@ import DndHotspotSvgs from './components/DndHotspotSvgs';
 import DndHotspotSvgBuilder from './components/DndHotspotSvgBuilder';
 import DrawCurveToolHOC from './components/DrawCurveToolHOC';
 
-import type { DndIconItem } from './@types/custom-typings';
-
 import './App.css';
 
 import Eye from './icons-react/Eye';
@@ -29,19 +27,25 @@ import { DropTargetMonitor, useDrop as useDndDrop } from 'react-dnd';
 import { DndProvider } from 'react-dnd-multi-backend';
 import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 
+import type { DndIconItem } from './@types/custom-typings';
 import { DndIcon } from './web/DraggableIconDnd';
 import { ItemTypes } from './web/ItemTypes';
 
 import { useDndHotspotSvgsStore } from './stores/stores';
+// TODO - write simple annotation customization DOM component
 // import type { PendingAnnotation } from './stores/stores';
 
-import MySearch from './web/fuse/MySearch';
+import OrganSearch from './web/fuse/OrganSearch';
 
 function App() {
+  // Utilized in useDndDrop
   const setPendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.setPendingDndHotspotSvg);
   let point: { x: number, y: number } = { x: 0, y: 0 };
 
-  // const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
+  // Implements the SVG Icon drop into canvas scene functionality
+  //
+  // Purposely retained code to show how drag and drop logic can be further extended.
+  //    const [{ canDrop, isOver }, drop] = useDndDrop(() => ({
   const [, drop] = useDndDrop(() => ({
     accept: ItemTypes.ICON,
     drop: (item: DndIconItem) => {
@@ -78,19 +82,24 @@ function App() {
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
           <pointLight position={[-10, -10, -10]} />
 
+          {/* Curve example */}
+          {/**/}
           {/* <HilbertCurve /> */}
 
           <Suspense fallback={null}>
+            <DrawCurveToolHOC />
+
+            {/* Series of Prefabs example */}
+            {/**/}
             {/* <Box position={[-1, 0, 0]} /> */}
             {/* <Box position={[1, 0, 0]} /> */}
-
             {/* <Hotspot position={[0, 0, 0]}></Hotspot> */}
             {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/testBox.obj'}/> */}
-
             {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1252_BP50280_FMA59763_Maxillary%20gingiva.obj'}/> */}
-            <DrawCurveToolHOC />
-            {/* <CurvesArray /> */}
 
+            {/* Scene without CurveTool */}
+            {/**/}
+            {/* <CurvesArray /> */}
             {/* <OBJStoreMap /> */}
             {/* <OBJ objUrl={'http://127.0.0.1:8080/obj/FJ1253_BP50293_FMA59764_Mandibular%20gingiva.obj'}/> */}
           </Suspense>
@@ -114,7 +123,7 @@ function App() {
         <Hourglass width="60px" height="60px" />
       </DndIcon>
 
-      <MySearch />
+      <OrganSearch />
     </>
   )
 }

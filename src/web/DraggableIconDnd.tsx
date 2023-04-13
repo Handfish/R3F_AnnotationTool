@@ -21,7 +21,7 @@ export interface DndProps {
 
 /**
 * React Drag and Drop parent component
-*   enables drag capability for icons
+*   enables drag capability for SVG icons
 */
 export const DndIcon: FC<DndProps> = function Box({ children, icon, name }) {
   const [{ isDragging }, drag] = useDrag(() => ({

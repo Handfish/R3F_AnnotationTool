@@ -26,7 +26,7 @@ const getElementFileIds = async (name: string) => {
 /**
  * React Element for searching and loading data on clicking results
  */
-const MySearch = () => {
+const OrganSearch = () => {
   const objProps = useOBJsStore(state => state.objProps);
   const setObjProps = useOBJsStore(state => state.setObjProps);
 
@@ -85,4 +85,4 @@ const MySearch = () => {
   );
 };
 
-export default MySearch;
+export default OrganSearch;

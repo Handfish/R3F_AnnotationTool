@@ -76,6 +76,8 @@ const emptyVector = new Vector3();
 
 /**
 * Expandable Icons derived from SVG Data which display / scale to a uniform size during camera zoom
+*
+* Uses multiple sprites for an illusion of partial occlusion + opacity
 */
 export default function HotspotSvg(props: HotspotSvgProps) {
   const uuid = useMemo(() => uuidv4(), []);

@@ -1,6 +1,9 @@
 import HotspotSvg from './HotspotSvg';
 import { useDndHotspotSvgsStore } from '../stores/stores';
 
+/**
+  * Component which renders Hotspot Store Data
+  */
 export default function DndHotspotSvgs() {
   const hotspotSvgs = useDndHotspotSvgsStore(state => state.hotspotSvgs);
 

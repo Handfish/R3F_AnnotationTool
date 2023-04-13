@@ -3,6 +3,11 @@ import { useMouseOverStore } from '../stores/stores';
 import type { MouseEventData } from '../@types/custom-typings';
 import { ThreeEvent } from '@react-three/fiber';
 
+/**
+ * Custom Hook to make sure the cursor is set to the correct style
+ *  Builds an array of presently moused over elements
+ *  Only converts mouse back to pointer on exit of ALL elements
+ */
 export function useMouseEvents(uuid: string) {
   const setCursorPointer = (isPointerCursor: boolean) => {
     document.body.style.cursor = isPointerCursor ? 'pointer' : 'auto'

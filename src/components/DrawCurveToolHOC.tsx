@@ -6,7 +6,10 @@ import { OBJProps, useOBJsStore } from '../stores/stores';
 import type { Vertices } from '../@types/custom-typings';
 import { Vector3 } from 'three';
 
-
+/**
+  * High Order Component which applies Mouse Drag Events across scene components (component children) to allow the user
+  * to drave curves in the 3d space.
+  */
 export default function DrawCurveToolHOC() {
   // const [,forceUpdate] = useState();
 

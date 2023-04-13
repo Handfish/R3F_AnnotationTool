@@ -3,6 +3,9 @@ import { useThree } from '@react-three/fiber'
 import { Object3D, Vector2 } from 'three';
 import { DndHotspotSvgProps, useDndHotspotSvgsStore } from '../stores/stores';
 
+/**
+  * Component which utilizes useEffect to look at DnD data in a a store and pushes to a Hotspot rendering store
+  */
 export default function DndHotspotSvgBuilder() {
   const { scene, raycaster, camera } = useThree();
   const pendingDndHotspotSvg = useDndHotspotSvgsStore(state => state.pendingDndHotspotSvg);

@@ -11,7 +11,9 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { useMouseEvents } from '../hooks/useMouseEvents';
 import { v4 as uuidv4 } from 'uuid';
 
-
+/**
+  * Draw Component for CatmullRomCurve with a togglable Annotation
+  */
 export default function Curve(props: { vertices: Vertices, hoverable: boolean }) {
   const [active, setActive] = useState(false);
   const lineMaterialRef = useRef<LineMaterial>(null!);
@@ -81,15 +83,9 @@ export default function Curve(props: { vertices: Vertices, hoverable: boolean })
   }, [props.vertices]);
 
   useEffect(() => {
-    // console.log(props.vertices);
-  }, [props.vertices]);
-
-
-  useEffect(() => {
     lineMaterialRef.current = (line as Line2)!.material || new LineMaterial();
     // lineGeometryRef.current = (line as Line2)!.geometry || new LineGeometry();
   }, [line]);
-
 
   return (
     <>
