@@ -1,5 +1,6 @@
-# Getting Started with Create React App
+# BodyParts3D/Anatomography Annotation Tool via  React Three Fiber 
 
+This project would benefit from being ported to Vite but I had created a few years ago.
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
