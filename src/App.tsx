@@ -5,7 +5,10 @@ import { Vector2 } from 'three';
 import BasicCamera from './components/BasicCamera'
 import DndHotspotSvgs from './components/DndHotspotSvgs';
 import DndHotspotSvgBuilder from './components/DndHotspotSvgBuilder';
-import DrawCurveToolHOC from './components/DrawCurveToolHOC';
+import DrawCurveToolCollision from './components/DrawCurveToolCollision';
+
+import OBJ from './components/OBJ'
+import { OBJProps, useOBJsStore } from './stores/stores';
 
 import './App.css';
 
@@ -67,6 +70,14 @@ function App() {
     }
   }))
 
+  // OBJ MAP
+  const elementIds = useOBJsStore(state => state.objProps);
+  console.log(elementIds);
+
+  const OBJMap = elementIds.map((obj: OBJProps, i: number) =>
+    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]} />)
+  );
+
   return (
     <>
       <div ref={drop} className={'app-container'}
@@ -87,7 +98,9 @@ function App() {
           {/* <HilbertCurve /> */}
 
           <Suspense fallback={null}>
-            <DrawCurveToolHOC />
+            <DrawCurveToolCollision>
+              {OBJMap}
+            </DrawCurveToolCollision>
 
             {/* Series of Prefabs example */}
             {/**/}

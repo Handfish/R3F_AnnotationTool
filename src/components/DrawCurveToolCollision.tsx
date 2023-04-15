@@ -1,16 +1,18 @@
 import { useRef, useEffect, useState } from 'react'
-import OBJ from './OBJ'
 import Curve from './Curve';
 import { useDrag } from '../hooks/useDrag';
-import { OBJProps, useOBJsStore } from '../stores/stores';
 import type { Vertices } from '../@types/custom-typings';
 import { Vector3 } from 'three';
+
+interface DrawCurveToolCollisionProps {
+  children: React.ReactNode;
+}
 
 /**
   * High Order Component which applies Mouse Drag Events across scene components (component children) to allow the user
   * to drave curves in the 3d space.
   */
-export default function DrawCurveToolHOC() {
+export default function DrawCurveToolCollision(props: DrawCurveToolCollisionProps) {
   // const [,forceUpdate] = useState();
 
   const [vertices, setVertices] = useState<Vertices>([]);
@@ -45,20 +47,12 @@ export default function DrawCurveToolHOC() {
 
   const bindDrag = useDrag(onDrag, onEnd);
 
-  // OBJ MAP
-  const elementIds = useOBJsStore(state => state.objProps);
-  console.log(elementIds);
-
-  const OBJMap = elementIds.map((obj: OBJProps, i: number) =>
-    (<OBJ key={i} objUrl={`http://localhost:8080/obj/isa_BP3D_4.0_obj_99/${obj[0]}.obj`} colorProp={obj[1]} />)
-  );
-
   return (
     < >
       <Curve vertices={vertices} hoverable={false} />
       {curvesMap}
       <group {...bindDrag} >
-        {OBJMap}
+        {props.children}
       </group>
     </>
   );
